@@ -5,11 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.1.1" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.3.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Harpocrates.Runtime.Common\Harpocrates.Runtime.Common.csproj" />
+    <ProjectReference Include="..\Harpocrates.SecretManagement\Harpocrates.SecretManagement.csproj" />
   </ItemGroup>
 
 </Project>
