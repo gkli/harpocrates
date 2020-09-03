@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Harpocrates.SecretManagement.Contracts.Data
 {
-    public class SecretConfiguration
+    public class ConfiguredSecret : Secret
     {
         public enum SecretType
         {
@@ -16,5 +16,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string SecretUri { get; set; }
 
         public string OriginConnectionString { get; set; }
+
+        public SecretPolicy Policy { get; set; }
     }
 }

@@ -18,8 +18,6 @@ namespace Harpocrates.Runtime.Processors
         {
             SecretManagement.ISecretMetadataManager manager = new SecretManagement.SecretMetadataManager(Config, Logger);
 
-            //Workers.Processors.StorageCalculator.Calculator calc = new Workers.Processors.StorageCalculator.Calculator(Config, Logger);
-
             try
             {
                 await manager.ProcessExpiringSecretAsync(request.ObjectUri, token);

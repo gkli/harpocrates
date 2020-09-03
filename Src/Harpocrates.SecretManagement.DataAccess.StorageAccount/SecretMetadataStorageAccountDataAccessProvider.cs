@@ -10,7 +10,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
     {
         public SecretMetadataStorageAccountDataAccessProvider(Runtime.Common.DataAccess.ConnectionStrings.CQRSStorageAccountConnectionString connectionString) : base(connectionString)
         {
-            
+
         }
 
         protected new Runtime.Common.DataAccess.ConnectionStrings.CQRSStorageAccountConnectionString ConnectionString
@@ -21,37 +21,35 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             }
         }
 
-        protected override Task OnDeleteSecretAsync(string secreteId, CancellationToken token)
+        protected async override Task OnDeleteSecretAsync(string key, CancellationToken token)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token)
+        protected async override Task<Secret> OnGetSecretAsync(string key, CancellationToken token)
+        {
+            //TODO: Should we prune data?
+            return await OnGetConfiguredSecretAsync(key, token);
+        }
+
+        protected async override Task<ConfiguredSecret> OnGetConfiguredSecretAsync(string key, CancellationToken token)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<Secret> OnGetSecretAsync(string secretId, CancellationToken token)
+        protected async override Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<SecretConfiguration> OnGetSecretConfigurationAsync(string secretId, CancellationToken token)
+
+
+        protected async override Task OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<SecretPolicy> OnGetSecretPolicy(string secretId, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task OnSaveSecretAsync(Secret secret, SecretPolicy policy, CancellationToken token)
+        protected async override Task OnSaveSecretAsync(ConfiguredSecret secret, CancellationToken token)
         {
             throw new NotImplementedException();
         }
