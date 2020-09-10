@@ -17,6 +17,12 @@ namespace Harpocrates.SecretManagement.DataAccess
         Task DeleteSecretAsync(Uri secretUri, CancellationToken token);
 
         Task<Contracts.Data.SecretPolicy> GetPolicyAsync(string policyId, CancellationToken token);
+        Task DeletePolicyAsync(string policyId, CancellationToken token);
         Task SavePolicyAsync(Contracts.Data.SecretPolicy policy, CancellationToken token);
+
+        Task<Contracts.Data.SecretConfiguration> GetConfigurationAsync(string configId, CancellationToken token);
+        Task DeleteConfigurationAsync(string configId, CancellationToken token);
+        Task SaveConfigurationAsync(Contracts.Data.SecretConfiguration config, CancellationToken token);
+
     }
 }
