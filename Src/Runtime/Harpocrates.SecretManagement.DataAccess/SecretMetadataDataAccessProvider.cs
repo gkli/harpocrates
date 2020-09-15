@@ -15,29 +15,29 @@ namespace Harpocrates.SecretManagement.DataAccess
         }
 
 
-        public async Task<Secret> GetSecretAsync(string key, CancellationToken token)
+        public async Task<SecretBase> GetSecretAsync(string key, CancellationToken token)
         { //TODO: Validate input 
             return await OnGetSecretAsync(key, token);
         }
 
-        public async Task<Secret> GetSecretAsync(Uri secretUri, CancellationToken token)
+        public async Task<SecretBase> GetSecretAsync(Uri secretUri, CancellationToken token)
         { //TODO: Validate input 
             return await GetSecretAsync(GetSecretKeyFromUri(secretUri), token);
         }
 
-        public async Task<ConfiguredSecret> GetConfiguredSecretAsync(string key, CancellationToken token)
+        public async Task<Secret> GetConfiguredSecretAsync(string key, CancellationToken token)
         { //TODO: Validate input 
             return await OnGetConfiguredSecretAsync(key, token);
         }
 
-        public async Task<ConfiguredSecret> GetConfiguredSecretAsync(Uri secretUri, CancellationToken token)
+        public async Task<Secret> GetConfiguredSecretAsync(Uri secretUri, CancellationToken token)
         { //TODO: Validate input 
             return await GetConfiguredSecretAsync(GetSecretKeyFromUri(secretUri), token);
         }
 
-        public async Task SaveSecretAsync(ConfiguredSecret secret, CancellationToken token)
+        public async Task<string> SaveSecretAsync(Secret secret, CancellationToken token)
         { //TODO: Validate input 
-            await OnSaveSecretAsync(secret, token);
+            return await OnSaveSecretAsync(secret, token);
         }
 
         public async Task DeleteSecretAsync(string key, CancellationToken token)
@@ -57,11 +57,11 @@ namespace Harpocrates.SecretManagement.DataAccess
             return await OnGetPolicyAsync(policyId, token);
         }
 
-        public async Task SavePolicyAsync(SecretPolicy policy, CancellationToken token)
+        public async Task<string> SavePolicyAsync(SecretPolicy policy, CancellationToken token)
         {
             //TODO: Validate input 
 
-            await OnSavePolicyAsync(policy, token);
+            return await OnSavePolicyAsync(policy, token);
         }
 
         public async Task DeletePolicyAsync(string policyId, CancellationToken token)
@@ -84,26 +84,26 @@ namespace Harpocrates.SecretManagement.DataAccess
             await OnDeleteConfigurationAsync(configId, token);
         }
 
-        public async Task SaveConfigurationAsync(SecretConfiguration config, CancellationToken token)
+        public async Task<string> SaveConfigurationAsync(SecretConfiguration config, CancellationToken token)
         {
             //TODO: Validate input 
-            await OnSaveConfigurationAsync(config, token);
+            return await OnSaveConfigurationAsync(config, token);
         }
 
         private string GetSecretKeyFromUri(Uri secreturi)
         {
-            return Secret.FromKeyvaultUri(secreturi.ToString()).Key;
+            return SecretBase.FromKeyvaultUri(secreturi.ToString()).Key;
         }
-        protected abstract Task<Secret> OnGetSecretAsync(string key, CancellationToken token);
-        protected abstract Task<ConfiguredSecret> OnGetConfiguredSecretAsync(string key, CancellationToken token);
-        protected abstract Task OnSaveSecretAsync(ConfiguredSecret secret, CancellationToken token);
+        protected abstract Task<SecretBase> OnGetSecretAsync(string key, CancellationToken token);
+        protected abstract Task<Secret> OnGetConfiguredSecretAsync(string key, CancellationToken token);
+        protected abstract Task<string> OnSaveSecretAsync(Secret secret, CancellationToken token);
         protected abstract Task OnDeleteSecretAsync(string key, CancellationToken token);
         protected abstract Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token);
-        protected abstract Task OnSavePolicyAsync(SecretPolicy policy, CancellationToken token);
+        protected abstract Task<string> OnSavePolicyAsync(SecretPolicy policy, CancellationToken token);
         protected abstract Task OnDeletePolicyAsync(string policyId, CancellationToken token);
 
         protected abstract Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token);
         protected abstract Task OnDeleteConfigurationAsync(string configId, CancellationToken token);
-        protected abstract Task OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token);
+        protected abstract Task<string> OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token);
     }
 }

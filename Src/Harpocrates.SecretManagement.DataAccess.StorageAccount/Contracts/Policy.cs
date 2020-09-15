@@ -6,6 +6,6 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount.Contracts
 {
     public class Policy : SecretManagement.Contracts.Data.SecretPolicy
     {
-        public Guid SecretId { get; set; }
+       
     }
 }

@@ -32,59 +32,164 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             }
         }
 
-        protected async override Task OnDeleteSecretAsync(string key, CancellationToken token)
+
+        protected async override Task<SecretBase> OnGetSecretAsync(string key, CancellationToken token)
         {
-            throw new NotImplementedException();
+            string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Secret, key), token);
+            if (string.IsNullOrWhiteSpace(json)) return null;
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Secret>(json);
         }
 
-        protected async override Task<Secret> OnGetSecretAsync(string key, CancellationToken token)
+        protected async override Task<Secret> OnGetConfiguredSecretAsync(string key, CancellationToken token)
         {
-            //TODO: Should we prune data?
-            //return await OnGetConfiguredSecretAsync(key, token);
-            throw new NotImplementedException();
-        }
+            SecretBase s = await GetSecretAsync(key, token);
 
-        protected async override Task<ConfiguredSecret> OnGetConfiguredSecretAsync(string key, CancellationToken token)
-        {
-            throw new NotImplementedException();
+            if (null != token && token.IsCancellationRequested) return null; //cancel
+
+            Secret cs = s as Secret; //should never really happen give the code flow...
+            if (null == cs)
+            {
+                cs = new Secret()
+                {
+                    ObjectName = s.ObjectName,
+                    ObjectType = s.ObjectType,
+                    VaultName = s.VaultName,
+                    Version = s.Version
+                };
+
+            }
+            if (s is Contracts.Secret)
+            {
+                cs.Configuration = await GetConfigurationAsync((s as Contracts.Secret).ConfigurationId.ToString(), token);
+            }
+
+            return cs;
         }
 
         protected async override Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token)
         {
-            throw new NotImplementedException();
+            string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Policy, policyId), token);
+            if (string.IsNullOrWhiteSpace(json)) return null;
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Policy>(json);
+        }
+
+        protected async override Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token)
+        {
+            string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, configId), token);
+            if (string.IsNullOrWhiteSpace(json)) return null;
+
+            var cfg = Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Config>(json);
+
+            SecretConfiguration result = null;
+
+            if (null != cfg)
+            {
+                result = cfg.ToSecretConfiguration();
+                if (result.Policy.PolicyId != Guid.Empty)
+                {
+                    result.Policy = await GetPolicyAsync(result.Policy.PolicyId.ToString(), token);
+                }
+            }
+
+            return result;
         }
 
 
+        protected async override Task<string> OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)
+        {
+            Contracts.Policy sp = policy as Contracts.Policy;
+            if (null == sp)
+            {
+                sp = new Contracts.Policy()
+                {
+                    RotationInterval = policy.RotationInterval,
+                    Name = policy.Name,
+                    Description = policy.Description,
+                    PolicyId = policy.PolicyId
+                };
+            }
 
-        protected async override Task OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)
+            if (Guid.Empty == sp.PolicyId) sp.PolicyId = Guid.NewGuid();
+
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Policy, sp.PolicyId.ToString()), Newtonsoft.Json.JsonConvert.SerializeObject(sp), token);
+            return sp.PolicyId.ToString();
+        }
+
+        protected async override Task<string> OnSaveSecretAsync(Secret secret, CancellationToken token)
+        {
+            Contracts.Secret ss = new Contracts.Secret()
+            {
+                Name = secret.Name,
+                Description = secret.Description,
+                ObjectName = secret.ObjectName,
+                ObjectType = secret.ObjectType,
+                VaultName = secret.VaultName,
+                Version = secret.Version,
+                ConfigurationId = secret.Configuration == null ? Guid.Empty : secret.Configuration.ConfigurationId //should never happen!!!
+                //todo: catch above in data validation
+            };
+
+            //if (ss.ConfigurationId != Guid.Empty)
+            //{
+
+            //}
+
+            //if (Guid.Empty == ss.ConfigurationId) ss.ConfigurationId = Guid.NewGuid();
+
+            ////todo: what to we do w/ Policy here?
+
+            //if (Guid.Empty == ss.PolicyId && null != ss.Policy)
+            //{
+            //    if (Guid.TryParse(await SavePolicyAsync(ss.Policy, token), out Guid id))
+            //    {
+            //        ss.PolicyId = id;
+            //    }
+            //}
+
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, ss.Key), Newtonsoft.Json.JsonConvert.SerializeObject(ss), token);
+
+            return ss.ConfigurationId.ToString();
+        }
+
+        protected async override Task<string> OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token)
+        {
+            Contracts.Config sc = Contracts.Config.FromSecretConfiguration(config);
+
+            if (Guid.Empty == sc.ConfigurationId) sc.ConfigurationId = Guid.NewGuid();
+
+            //todo: what to we do w/ Policy here?
+
+            //if (Guid.Empty == sc.PolicyId && null != sc.Policy)
+            //{
+            //    if (Guid.TryParse(await SavePolicyAsync(sc.Policy, token), out Guid id))
+            //    {
+            //        sc.PolicyId = id;
+            //    }
+            //}
+
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, sc.ConfigurationId.ToString()), Newtonsoft.Json.JsonConvert.SerializeObject(sc), token);
+
+            return sc.ConfigurationId.ToString();
+        }
+
+        protected async override Task OnDeleteSecretAsync(string key, CancellationToken token)
         {
             throw new NotImplementedException();
         }
-
-        protected async override Task OnSaveSecretAsync(ConfiguredSecret secret, CancellationToken token)
+        protected async override Task OnDeleteConfigurationAsync(string configId, CancellationToken token)
         {
             throw new NotImplementedException();
         }
-
         protected async override Task OnDeletePolicyAsync(string policyId, CancellationToken token)
         {
             throw new NotImplementedException();
         }
 
-        protected async override Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
 
-        protected async override Task OnDeleteConfigurationAsync(string configId, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
 
-        protected async override Task OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
+
 
         private static async Task SaveObjectAsync(BlobContainerClient client, string fileName, string json, CancellationToken token)
         {
@@ -108,6 +213,11 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
         private static async Task DeleteObjectAsync(BlobContainerClient client, string fileName, CancellationToken token)
         {
             await client.DeleteBlobIfExistsAsync(fileName, cancellationToken: token);
+        }
+
+        private static string FormatFileName(string folder, string id)
+        {
+            return $"{folder}/{id.ToLower()}.json";
         }
     }
 }

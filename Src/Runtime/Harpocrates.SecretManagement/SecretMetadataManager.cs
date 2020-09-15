@@ -1,6 +1,7 @@
 ﻿using Harpocrates.SecretManagement.Contracts.Data;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,12 +22,36 @@ namespace Harpocrates.SecretManagement
 
         }
 
-        public Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token)
+        public async Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+
+            //get secret
+            var secret = await _dataProvider.GetConfiguredSecretAsync(Secret.FromKeyvaultUri(secretUri).Key, token);
+
+            if (null == secret)
+            {
+                //what do we do we if can't find the secret?
+            }
+
+            if (null == secret.Configuration)
+            {
+                //what do we do if secret doesn't have config
+            }
+
+            switch (secret.Configuration.Type)
+            {
+                case SecretConfigurationBase.SecretType.StorageAccountKey:
+                    break;
+                case SecretConfigurationBase.SecretType.CosmosDbAccountKey:
+                    break;
+            }
+
+            //secret.Configuration
+
         }
 
-        public Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
+        public async Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
         {
             throw new NotImplementedException();
         }
@@ -60,6 +85,6 @@ namespace Harpocrates.SecretManagement
         //    throw new NotImplementedException();
         //}
 
-      
+
     }
 }
