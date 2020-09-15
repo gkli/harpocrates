@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Harpocrates.Runtime.Helpers
 {
-    internal class QueueClientHelper
+    public class QueueClientHelper
     {
         private static Dictionary<string, Azure.Storage.Queues.QueueClient> _clientCache = new Dictionary<string, Azure.Storage.Queues.QueueClient>();
 
