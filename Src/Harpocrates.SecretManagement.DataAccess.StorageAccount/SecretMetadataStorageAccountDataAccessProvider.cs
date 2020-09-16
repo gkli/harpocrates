@@ -123,6 +123,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             {
                 Name = secret.Name,
                 Description = secret.Description,
+                CurrentKeyName = secret.CurrentKeyName,
                 ObjectName = secret.ObjectName,
                 ObjectType = secret.ObjectType,
                 VaultName = secret.VaultName,

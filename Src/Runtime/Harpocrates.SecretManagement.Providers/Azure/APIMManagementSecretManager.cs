@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Harpocrates.SecretManagement.Providers.Azure
 {
-    internal class EventGridSecretManagementProvider : SecretManagementProvider
+    internal class APIMManagementSecretManager : SecretManager
     {
-        protected override Task OnRotateSecretAsync(Secret secret)
+        protected override Task<Key> OnRotateSecretAsync(Secret secret)
         {
             throw new NotImplementedException();
         }

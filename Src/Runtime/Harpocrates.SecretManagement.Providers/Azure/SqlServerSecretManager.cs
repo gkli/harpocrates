@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Harpocrates.SecretManagement.Providers.Azure
 {
-    internal class SqlServerSecretManagementProvider : SecretManagementProvider
+    internal class SqlServerSecretManager : SecretManager
     {
-        protected override Task OnRotateSecretAsync(Secret secret)
+        protected override Task<Key> OnRotateSecretAsync(Secret secret)
         {
             throw new NotImplementedException();
         }

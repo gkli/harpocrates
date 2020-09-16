@@ -16,6 +16,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string Name { get; set; }
         public string Description { get; set; }
 
+        public string CurrentKeyName { get; set; }
 
         public static SecretBase FromKeyvaultUri(string uri)
         {

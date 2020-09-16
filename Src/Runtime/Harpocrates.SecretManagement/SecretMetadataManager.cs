@@ -39,15 +39,9 @@ namespace Harpocrates.SecretManagement
                 //what do we do if secret doesn't have config
             }
 
-            switch (secret.Configuration.Type)
-            {
-                case SecretConfigurationBase.SecretType.StorageAccountKey:
-                    break;
-                case SecretConfigurationBase.SecretType.CosmosDbAccountKey:
-                    break;
-            }
+            Providers.SecretManagerFactory factory = new Providers.SecretManagerFactory(_dataProvider, _logger);
+            await factory.RotateSecretAsync(secret, token);
 
-            //secret.Configuration
 
         }
 
