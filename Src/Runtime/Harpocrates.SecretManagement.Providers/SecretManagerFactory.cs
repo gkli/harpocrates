@@ -26,7 +26,7 @@ namespace Harpocrates.SecretManagement.Providers
 
             ISecretManagemer provider = CreateSecretManagementProvider(secret.Configuration.Type);
 
-            Key rotated = await provider.RotateSecretAsync(secret);
+            Key rotated = await provider.RotateSecretAsync(secret, token);
 
             //todo: need to write this into KV and update secret record...
             //interact w/ KV directly here?

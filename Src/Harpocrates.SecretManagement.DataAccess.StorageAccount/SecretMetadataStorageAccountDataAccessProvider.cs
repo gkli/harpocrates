@@ -128,6 +128,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                 ObjectType = secret.ObjectType,
                 VaultName = secret.VaultName,
                 Version = secret.Version,
+                SubscriptionId = secret.SubscriptionId,
                 ConfigurationId = secret.Configuration == null ? Guid.Empty : secret.Configuration.ConfigurationId //should never happen!!!
                 //todo: catch above in data validation
             };

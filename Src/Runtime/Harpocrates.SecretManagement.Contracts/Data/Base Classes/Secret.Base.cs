@@ -15,7 +15,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string Version { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-
+        public string SubscriptionId { get; set; } //id of subscription that has the KeyVault instance
         public string CurrentKeyName { get; set; }
 
         public static SecretBase FromKeyvaultUri(string uri)

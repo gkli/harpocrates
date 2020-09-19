@@ -19,7 +19,7 @@ namespace Harpocrates.SecretManagement
             _logger = logger;
 
             //dataProvider = get from config
-
+            //we need a data provider in order to read/write secret data...
         }
 
         public async Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token)

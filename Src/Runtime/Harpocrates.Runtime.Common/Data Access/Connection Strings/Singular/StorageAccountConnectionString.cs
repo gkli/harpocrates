@@ -65,7 +65,7 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
         {
             get
             {
-                if (Builder.TryGetValue(Keys.ContainerName, out object v))
+                if (Builder.TryGetValue(Keys.KeyType, out object v))
                 {
                     if (Enum.TryParse<AccountKeyType>(v as string, out AccountKeyType result)) return result;
                     else return AccountKeyType.None;
@@ -75,8 +75,21 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
             }
             set
             {
-                Builder.Add(Keys.ContainerName, value);
+                Builder.Add(Keys.KeyType, value);
             }
+        }
+
+        public string ToStorageAccountFormat()
+        {
+            //"DefaultEndpointsProtocol=https;AccountName=harpocrates;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;EndpointSuffix=core.windows.net"
+
+            Uri uri = new Uri(AccountEndpoint);
+
+            int firstDotIdx = uri.Host.IndexOf(".");
+            string accountName = uri.Host.Substring(0, firstDotIdx);
+            string suffix = uri.Host.Substring(firstDotIdx + 1, uri.Host.Length - firstDotIdx - 1);
+
+            return $"DefaultEndpointsProtocol={uri.Scheme};AccountName={accountName};AccountKey={AccountKey};EndpointSuffix={suffix}";
         }
     }
 }

@@ -17,27 +17,41 @@ namespace Harpocrates.Host
 
         protected override string OnGetDeadLetterMessagesQueueName()
         {
-            throw new NotImplementedException();
+            return "deadletter";
         }
 
         protected override string OnGetFormattedMessagesQueueName()
         {
-            throw new NotImplementedException();
+            return "formatted";
         }
 
         protected override int OnGetMaxNumberProcessingAttempts()
         {
-            throw new NotImplementedException();
+            return 10;
         }
 
         protected override string OnGetRawMessagesQueueName()
         {
-            throw new NotImplementedException();
+            return "events";
         }
 
         protected override StorageAccountConnectionString OnGetMonitoredQueueConnectionString()
         {
-            throw new NotImplementedException();
+            /*
+             * "DefaultEndpointsProtocol=https;AccountName=harpocrates;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;EndpointSuffix=core.windows.net"
+             * 
+               public const string AccountEndpoint = "AccountEndpoint";
+            public const string AccountKey = "AccountKey";
+            public const string ContainerName = "Container";
+            public const string KeyType = "KeyType";
+             */
+
+
+            return new StorageAccountConnectionString()
+            {
+                ConnectionString = "AccountEndpoint=https://harpocrates.core.windows.net;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;KeyType=AccountKey;"
+
+            };
         }
     }
 }

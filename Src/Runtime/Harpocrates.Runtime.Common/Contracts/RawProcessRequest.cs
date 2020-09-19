@@ -12,7 +12,7 @@ namespace Harpocrates.Runtime.Common.Contracts
             public static class Secret
             {
                 public const string Expired = "Microsoft.KeyVault.SecretExpired";
-                public const string Expiring = "Microsoft.KeyVault.SecretExpiring";
+                public const string Expiring = "Microsoft.KeyVault.SecretNearExpiry";
                 public const string Created = "Microsoft.KeyVault.Secret...";//todo: update event
             }
         }

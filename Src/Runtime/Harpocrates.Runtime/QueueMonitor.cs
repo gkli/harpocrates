@@ -20,12 +20,12 @@ namespace Harpocrates.Runtime
         private Common.Configuration.IConfigurationManager _config;
         private TimeSpan _messageVisibilityTimeout;
 
-        public QueueMonitor(Uri queueUri, TimeSpan messageVisibilityTimeout, Common.Configuration.IConfigurationManager config, ILogger logger)
+        public QueueMonitor(string queueName, TimeSpan messageVisibilityTimeout, Common.Configuration.IConfigurationManager config, ILogger logger)
         {
             _logger = logger;
             _config = config;
 
-            _queueClient = Helpers.QueueClientHelper.CreateQueueClient(queueUri, config);
+            _queueClient = Helpers.QueueClientHelper.CreateQueueClient(config, queueName);
 
             _deadLetterQueueClient = Helpers.QueueClientHelper.CreateQueueClient(config, config.DeadLetterMessagesQueueName);
             _messageVisibilityTimeout = messageVisibilityTimeout;

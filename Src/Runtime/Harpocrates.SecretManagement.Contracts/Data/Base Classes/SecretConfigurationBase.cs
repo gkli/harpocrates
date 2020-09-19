@@ -23,6 +23,8 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         public string OriginConnectionString { get; set; }
 
+        public string SubscriptionId { get; set; }
+
         public SecretType Type { get; set; }
     }
 }

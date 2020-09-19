@@ -13,7 +13,7 @@ namespace Harpocrates.Runtime.Helpers
         {
             Common.DataAccess.ConnectionStrings.StorageAccountConnectionString sacs = config.MonitoredQueueConnectionString;
 
-            string cacheKey = sacs.ConnectionString.ToLower();
+            string cacheKey = $"connection={sacs.ConnectionString.ToLower()};queue={queueName}";
 
             if (_clientCache.ContainsKey(cacheKey)) return _clientCache[cacheKey];
 
@@ -28,6 +28,8 @@ namespace Harpocrates.Runtime.Helpers
                     return EnsureClientCache(cacheKey, new Azure.Storage.Queues.QueueClient(uri, new DefaultAzureCredential()));
                 case Common.DataAccess.ConnectionStrings.StorageAccountConnectionString.AccountKeyType.SAS:
                     return EnsureClientCache(cacheKey, new Azure.Storage.Queues.QueueClient(uri));
+                case Common.DataAccess.ConnectionStrings.StorageAccountConnectionString.AccountKeyType.AccountKey:
+                    return EnsureClientCache(cacheKey, new Azure.Storage.Queues.QueueClient(sacs.ToStorageAccountFormat(), queueName));
             }
 
             return null;
@@ -74,5 +76,7 @@ namespace Harpocrates.Runtime.Helpers
 
             return uri;
         }
+
+
     }
 }
