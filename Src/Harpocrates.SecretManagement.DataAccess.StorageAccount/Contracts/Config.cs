@@ -6,7 +6,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount.Contracts
 {
     public class Config : SecretManagement.Contracts.Data.SecretConfigurationBase
     {
-        public Guid PolicyId { get; set; }
+        public Guid DefaultPolicyId { get; set; }
 
         public SecretManagement.Contracts.Data.SecretConfiguration ToSecretConfiguration()
         {
@@ -16,12 +16,12 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount.Contracts
                 Name = Name,
                 Description = Description,
                 SubscriptionId = SubscriptionId,
-                OriginConnectionString = OriginConnectionString,
+                SourceConnectionString = SourceConnectionString,
                 Type = Type,
-                SecretUri = SecretUri,
-                Policy = new SecretManagement.Contracts.Data.SecretPolicy()
+                //SecretUri = SecretUri,
+                DefaultPolicy = new SecretManagement.Contracts.Data.SecretPolicy()
                 {
-                    PolicyId = PolicyId
+                    PolicyId = DefaultPolicyId
                 }
             };
         }
@@ -34,10 +34,10 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount.Contracts
                 Name = config.Name,
                 Description = config.Description,
                 SubscriptionId = config.SubscriptionId,
-                OriginConnectionString = config.OriginConnectionString,
-                SecretUri = config.SecretUri,
+                SourceConnectionString = config.SourceConnectionString,
+                //SecretUri = config.SecretUri,
                 Type = config.Type,
-                PolicyId = config.Policy == null ? Guid.Empty : config.Policy.PolicyId // could this ever happen? prevent in data validation
+                DefaultPolicyId = config.DefaultPolicy == null ? Guid.Empty : config.DefaultPolicy.PolicyId // could this ever happen? prevent in data validation
             };
         }
     }

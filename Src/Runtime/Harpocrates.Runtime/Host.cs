@@ -14,7 +14,6 @@ namespace Harpocrates.Runtime
 
         private QueueMonitor<Common.Contracts.RawProcessRequest> _rawMessageQueueMonitor;
         private QueueMonitor<Common.Contracts.FormattedProcessRequest> _formattedMessageQueueMonitor;
-        // private QueueMonitor<SchedulingProcessRequest> _schedulesMessageQueueMonitor;
 
         public Host(Common.Configuration.IConfigurationManager config, ILogger<Host> logger)
         {
@@ -28,15 +27,13 @@ namespace Harpocrates.Runtime
 
             _rawMessageQueueMonitor = new QueueMonitor<Common.Contracts.RawProcessRequest>(_config.RawMessagesQueueName, TimeSpan.FromSeconds(30), _config, _logger);
             _formattedMessageQueueMonitor = new QueueMonitor<Common.Contracts.FormattedProcessRequest>(_config.FormattedMessagesQueueName, TimeSpan.FromSeconds(30), _config, _logger);
-            //_schedulesMessageQueueMonitor = new QueueMonitor<SchedulingProcessRequest>(GetScheduleQueueUri(), TimeSpan.FromHours(1), _config, _logger);
 
             while (!token.IsCancellationRequested)
             {
                 List<Task> pendingTasks = new List<Task>();
 
                 // do not await, this can run in the background
-                pendingTasks.Add(_rawMessageQueueMonitor.ProcessPendingMessagesAsync(token));
-                //pendingTasks.Add(_schedulesMessageQueueMonitor.ProcessPendingMessagesAsync(token));
+              //  pendingTasks.Add(_rawMessageQueueMonitor.ProcessPendingMessagesAsync(token));
 
                 await _formattedMessageQueueMonitor.ProcessPendingMessagesAsync(token);
 
@@ -48,17 +45,5 @@ namespace Harpocrates.Runtime
 
             _logger.LogInformation($"Monitoring stopping: {DateTime.Now}");
         }
-
-        //private Uri GetRawQueueUri()
-        //{
-        //    return Helpers.QueueClientHelper.GetMonitoredQueueUri(_config.RawMessagesQueueName, _config);
-        //    //return new Uri(new Uri(_config.StorageAccountBaseUri), _config.RawMessagesQueueName);
-        //}
-        //private Uri GetFormattedQueueUri()
-        //{
-        //    return Helpers.QueueClientHelper.GetMonitoredQueueUri(_config.FormattedMessagesQueueName, _config);
-        //    //return new Uri(new Uri(_config.StorageAccountBaseUri), _config.FormattedMessagesQueueName);
-        //}
-
     }
 }

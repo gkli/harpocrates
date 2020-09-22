@@ -38,8 +38,9 @@ namespace Harpocrates.Runtime.Common.Contracts
 
         public RequestedAction Action { get; private set; }
 
-        public string ObjectUri { get; set; }
 
+        public string SubscriptionId { get; set; }
+        public string ObjectUri { get; set; }
         public string VaultName { get; set; }
         public string ObjectName { get; set; }
         public SecretType ObjectType { get; set; }

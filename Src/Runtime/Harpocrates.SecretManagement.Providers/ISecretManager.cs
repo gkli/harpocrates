@@ -13,7 +13,7 @@ namespace Harpocrates.SecretManagement.Providers
         public string Name { get; set; }
         public string Value { get; set; }
     }
-    public interface ISecretManagemer
+    public interface ISecretManager
     {
         //todo: what do we want to return? we need to know new values so that we can store them into secret config...
         //should "Secret" be extended to carry these details back for saving to KV key as well as storage repo...

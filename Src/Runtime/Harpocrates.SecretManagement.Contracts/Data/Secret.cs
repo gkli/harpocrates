@@ -7,5 +7,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
     public class Secret : SecretBase
     {
         public SecretConfiguration Configuration { get; set; }
+        public SecretPolicy Policy { get; set; }
     }
 }

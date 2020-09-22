@@ -4,6 +4,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Harpocrates.SecretManagement
 {
@@ -18,66 +19,43 @@ namespace Harpocrates.SecretManagement
             _config = config;
             _logger = logger;
 
-            //dataProvider = get from config
+            _dataProvider = _config.ServiceProvider.GetRequiredService<DataAccess.ISecretMetadataDataAccessProvider>();
             //we need a data provider in order to read/write secret data...
         }
 
         public async Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token)
         {
-            // throw new NotImplementedException();
-
+            _logger?.LogInformation($"Processing expiring seceret {secretUri}.");
             //get secret
             var secret = await _dataProvider.GetConfiguredSecretAsync(Secret.FromKeyvaultUri(secretUri).Key, token);
 
             if (null == secret)
             {
                 //what do we do we if can't find the secret?
+                _logger?.LogWarning($"Unable to retrieve metadata for seceret {secretUri}");
+                throw new InvalidOperationException("Unable to retreive seceret metadata");
             }
 
             if (null == secret.Configuration)
             {
                 //what do we do if secret doesn't have config
+                _logger?.LogWarning($"Unable to retrieve configuration metadata for seceret {secretUri}");
+                throw new InvalidOperationException("Unable to retreive seceret configuration metadata");
             }
 
-            Providers.SecretManagerFactory factory = new Providers.SecretManagerFactory(_dataProvider, _logger);
+            Providers.SecretManagerFactory factory = new Providers.SecretManagerFactory(_config, _dataProvider, _logger);
             await factory.RotateSecretAsync(secret, token);
 
-
+            _logger?.LogInformation($"Processed expiring seceret {secretUri}.");
         }
 
         public async Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
         {
             throw new NotImplementedException();
+
+            //todo: delete secret version? mark secret version as Disabled?
         }
 
-
-
-        //public async Task UpdateSecretAsync(string secretId, CancellationToken token)
-        //{
-        //    //add hash value to secret record, this would tell us if we're the one's that changed the secret or if it was changed outside the system
-        //    //add event for SecreteChanged --- does this buy us anything? what would happen if someone changes secret value at the origin? can we get synced up?
-        //    //if changed outside the system, do we care? assume whoever changed KV value, synced up w/ origin?
-
-        //    Secret secret = await _dataProvider.GetSecretAsync(secretId, token);
-        //    SecretConfiguration cfg = await _dataProvider.GetSecretConfigurationAsync(secretId, token);
-        //    SecretPolicy policy = await _dataProvider.GetSecretPolicy(secretId, token);
-
-        //    //update Secret Provider (Cosmosb, Storage Account, etc)
-        //    //update KV secret
-
-        //    throw new NotImplementedException();
-        //}
-
-        //public async Task SaveSecretAsync(Secret secret, SecretPolicy policy, CancellationToken token)
-        //{
-        //    throw new NotImplementedException();
-        //    //save secret metadata
-        //}
-
-        //public async Task DeleteSecretAsync(string secretId, CancellationToken token)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
 
     }

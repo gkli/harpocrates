@@ -1,5 +1,6 @@
 ﻿using Harpocrates.SecretManagement.Contracts.Data;
 using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
@@ -15,6 +16,11 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     public abstract class AzureSecretManager : SecretManager
     {
+        public AzureSecretManager(Runtime.Common.Configuration.IConfigurationManager config) : base(config)
+        {
+
+        }
+
         protected IAzure GetAzureEnvironment()
         {
             //if (null != _azure) return _azure;
@@ -25,7 +31,34 @@ namespace Harpocrates.SecretManagement.Providers.Azure
             //    {
             //todo: May not want to carry this arround as things could run in different subscriptions? -- should we be deployed to single subscription or
             //manage accross subscriptions?
-            var credentials = SdkContext.AzureCredentialsFactory.FromFile(Environment.GetEnvironmentVariable("AZURE_AUTH_LOCATION"));
+
+
+            //todo: this may differ depending on hosting scenario, if so, would need to move to Configuration...
+            //var credentials = SdkContext.AzureCredentialsFactory.FromFile(Environment.GetEnvironmentVariable("AZURE_AUTH_LOCATION"));
+
+
+
+            //ADD: environment details to Config
+            var envSp = Config.EnvironmentServicePrincipalConnectionString;
+
+            AzureEnvironment azureEnvironment = AzureEnvironment.AzureGlobalCloud;
+            if (false == string.IsNullOrEmpty(envSp.EnvironmentName))
+            {
+                foreach (var env in AzureEnvironment.KnownEnvironments)
+                {
+                    if (string.Compare(env.Name, envSp.EnvironmentName, false) == 0)
+                    {
+                        azureEnvironment = env;
+                        break;
+                    }
+                }
+            }
+
+            //this sp needs to be "Storage Account Key Operator Service Role" for storage accounts...
+            var credentials = SdkContext.AzureCredentialsFactory.FromServicePrincipal(envSp.ClientId, envSp.ClientSecret, envSp.TenantId, azureEnvironment);
+
+            //var credentials = SdkContext.AzureCredentialsFactory.FromSystemAssignedManagedServiceIdentity(Microsoft.Azure.Management.ResourceManager.Fluent.Authentication.MSIResourceType.VirtualMachine, null);
+
 
             var azure = Microsoft.Azure.Management.Fluent.Azure.Configure()
                             .WithLogLevel(HttpLoggingDelegatingHandler.Level.Basic)
@@ -44,7 +77,12 @@ namespace Harpocrates.SecretManagement.Providers.Azure
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
             KeyVaultClient kvClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-            TimeSpan expiresOn = secret.Configuration.Policy.RotationInterval;
+            SecretPolicy effectivePolicy = secret.Policy;
+            if (null == effectivePolicy) effectivePolicy = secret.Configuration.DefaultPolicy;
+
+            TimeSpan expiresOn = effectivePolicy.RotationInterval;
+
+            //todo: look at secret.FormatString to determine actual value of the secret to be written to KV
 
             switch (secret.ObjectType)
             {

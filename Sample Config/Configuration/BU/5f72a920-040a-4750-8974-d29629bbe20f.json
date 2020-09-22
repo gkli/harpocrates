@@ -1,0 +1,10 @@
+{
+	"configurationId": "5f72a920-040a-4750-8974-d29629bbe20f",
+	"subscriptionId": "e4e151a2-0cd9-4598-aa8d-cb8d5f72eeef"
+	"name": "harpocratestest2",
+	"description": "Harpocratestest2 storage account",
+	"type": "StorageAccountKey",
+	"secretUri": "https://harpocratestest1.core.windows.net",
+	"originConnectionString":"DefaultEndpointsProtocol=https;AccountName=harpocratestest2;AccountKey=dbMFgxfY8brwMuEaA8WHjDhAE/mooJ7UdntqQn4tIf7Rl5EvMzc/IGUAURPGnT/UrENsNTy9pn4tuT9kWZ5bfg==;EndpointSuffix=core.windows.net",
+	"defaultPolicyId": "d5bfb8a3-bc76-4a1E-bb46-50904ebb9273"
+}

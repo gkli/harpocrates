@@ -1,0 +1,10 @@
+{
+	"configurationId": "5f72a920-040a-4750-8974-d29629bbe20f",
+	"subscriptionId": "e4e151a2-0cd9-4598-aa8d-cb8d5f72eeef"
+	"name": "harpocratestest2",
+	"description": "Harpocratestest2 storage account",
+	"type": "StorageAccountKey",
+	"sourceConnectionString":"AccountEndpoint=https://harpocratestest2.core.windows.net;ResourceGroup=harpocrates;",
+	"defaultPolicyId": "d5bfb8a3-bc76-4a1E-bb46-50904ebb9273"
+}
+

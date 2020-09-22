@@ -9,48 +9,72 @@ namespace Harpocrates.Host
     internal class HostConfigurationManager : Runtime.Common.Configuration.ConfigurationManager
     {
         private readonly IConfiguration _runtimeConfig;
-
+        private readonly IServiceProvider _serviceProvider;
         public HostConfigurationManager(IServiceProvider serviceProvider, IConfiguration runtimeConfig)
         {
             _runtimeConfig = runtimeConfig;
+            _serviceProvider = serviceProvider;
         }
 
         protected override string OnGetDeadLetterMessagesQueueName()
         {
-            return "deadletter";
+            return _runtimeConfig["EventProcessing:DeadLetterQueueName"];
         }
 
         protected override string OnGetFormattedMessagesQueueName()
         {
-            return "formatted";
+            return _runtimeConfig["EventProcessing:FormattedMessageQueueName"];
         }
 
         protected override int OnGetMaxNumberProcessingAttempts()
         {
-            return 10;
+            if (int.TryParse(_runtimeConfig["EventProcessing:MaxNumberProcessingAttempts"], out int count)) return count;
+
+            return 5; //default to 5 attempts
         }
 
         protected override string OnGetRawMessagesQueueName()
         {
-            return "events";
+            return _runtimeConfig["EventProcessing:RawMessageQueueName"];
+        }
+
+        protected override IServiceProvider OnGetServiceProvider()
+        {
+            return _serviceProvider;
         }
 
         protected override StorageAccountConnectionString OnGetMonitoredQueueConnectionString()
         {
-            /*
-             * "DefaultEndpointsProtocol=https;AccountName=harpocrates;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;EndpointSuffix=core.windows.net"
-             * 
-               public const string AccountEndpoint = "AccountEndpoint";
-            public const string AccountKey = "AccountKey";
-            public const string ContainerName = "Container";
-            public const string KeyType = "KeyType";
-             */
-
+            //todo: read from config
 
             return new StorageAccountConnectionString()
             {
-                ConnectionString = "AccountEndpoint=https://harpocrates.core.windows.net;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;KeyType=AccountKey;"
+                ConnectionString = _runtimeConfig["EventProcessing:QueueServiceConnectionString"]
+            };
+        }
 
+        protected override CQRSStorageAccountConnectionString OnGetSecretManagementConnectionString()
+        {
+            //todo: read from config
+            string connectionString = _runtimeConfig["MetadataRepository:ConnectionString"];
+
+            return new CQRSStorageAccountConnectionString(new StorageAccountConnectionString()
+            {
+                ConnectionString = connectionString
+            }, new StorageAccountConnectionString()
+            {
+                ConnectionString = connectionString
+            });
+        }
+
+        protected override ServicePrincipalConnectionString OnGetEnvironmentServicePrincipalConnectionString()
+        {
+            return new ServicePrincipalConnectionString()
+            {
+                TenantId = _runtimeConfig.GetSection("Environment:TenantId").Value,
+                ClientId = _runtimeConfig.GetSection("Environment:ClientId").Value,
+                ClientSecret = _runtimeConfig.GetSection("Environment:ClientSecret").Value,
+                EnvironmentName = _runtimeConfig.GetSection("Environment:Name").Value
             };
         }
     }

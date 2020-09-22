@@ -1,5 +1,6 @@
 ﻿
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Harpocrates.SecretManagement.Contracts.Data;
 using System;
 using System.Threading;
@@ -17,11 +18,11 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
         }
 
         private readonly BlobContainerClient _rootContainer;
-        public SecretMetadataStorageAccountDataAccessProvider(Runtime.Common.DataAccess.ConnectionStrings.CQRSStorageAccountConnectionString connectionString) : base(connectionString)
+        public SecretMetadataStorageAccountDataAccessProvider(Runtime.Common.DataAccess.ConnectionStrings.CQRSStorageAccountConnectionString connectionString, Runtime.Common.Configuration.IConfigurationManager config) : base(connectionString)
         {
             //determine container uri from connectionString...
 
-            //_rootContainer = BlobClientHelper.CreateBlobContainerClient(containerUri, Config);
+            _rootContainer = BlobClientHelper.CreateBlobContainerClient(config, connectionString.CommandConnectionString.ContainerName);
         }
 
         protected new Runtime.Common.DataAccess.ConnectionStrings.CQRSStorageAccountConnectionString ConnectionString
@@ -43,28 +44,35 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
 
         protected async override Task<Secret> OnGetConfiguredSecretAsync(string key, CancellationToken token)
         {
-            SecretBase s = await GetSecretAsync(key, token);
+            SecretBase sb = await GetSecretAsync(key, token);
 
             if (null != token && token.IsCancellationRequested) return null; //cancel
 
-            Secret cs = s as Secret; //should never really happen give the code flow...
-            if (null == cs)
+            Secret s = sb as Secret; //should never really happen give the code flow...
+            if (null == s)
             {
-                cs = new Secret()
+                s = new Secret()
                 {
-                    ObjectName = s.ObjectName,
-                    ObjectType = s.ObjectType,
-                    VaultName = s.VaultName,
-                    Version = s.Version
+                    ObjectName = sb.ObjectName,
+                    ObjectType = sb.ObjectType,
+                    VaultName = sb.VaultName,
+                    Version = sb.Version
                 };
 
             }
-            if (s is Contracts.Secret)
+
+            Contracts.Secret cs = sb as Contracts.Secret;
+
+            if (null != cs)
             {
-                cs.Configuration = await GetConfigurationAsync((s as Contracts.Secret).ConfigurationId.ToString(), token);
+                s.Configuration = await GetConfigurationAsync(cs.ConfigurationId.ToString(), token);
+
+                if (null != token && token.IsCancellationRequested) return null; //cancel
+
+                if (cs.PolicyId.HasValue && cs.PolicyId.Value != Guid.Empty) s.Policy = await GetPolicyAsync(cs.PolicyId.Value.ToString(), token);
             }
 
-            return cs;
+            return s;
         }
 
         protected async override Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token)
@@ -87,9 +95,9 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             if (null != cfg)
             {
                 result = cfg.ToSecretConfiguration();
-                if (result.Policy.PolicyId != Guid.Empty)
+                if (result.DefaultPolicy.PolicyId != Guid.Empty)
                 {
-                    result.Policy = await GetPolicyAsync(result.Policy.PolicyId.ToString(), token);
+                    result.DefaultPolicy = await GetPolicyAsync(result.DefaultPolicy.PolicyId.ToString(), token);
                 }
             }
 
@@ -113,7 +121,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
 
             if (Guid.Empty == sp.PolicyId) sp.PolicyId = Guid.NewGuid();
 
-            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Policy, sp.PolicyId.ToString()), Newtonsoft.Json.JsonConvert.SerializeObject(sp), token);
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Policy, sp.PolicyId.ToString()), GetObjectJson<Contracts.Policy>(sp), token);
             return sp.PolicyId.ToString();
         }
 
@@ -129,28 +137,19 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                 VaultName = secret.VaultName,
                 Version = secret.Version,
                 SubscriptionId = secret.SubscriptionId,
-                ConfigurationId = secret.Configuration == null ? Guid.Empty : secret.Configuration.ConfigurationId //should never happen!!!
-                //todo: catch above in data validation
+                FormatExpression = secret.FormatExpression
             };
 
-            //if (ss.ConfigurationId != Guid.Empty)
-            //{
+            if (secret.Configuration != null)
+            {
+                ss.ConfigurationId = secret.Configuration.ConfigurationId;
 
-            //}
+                if (null != secret.Configuration.DefaultPolicy) ss.PolicyId = secret.Configuration.DefaultPolicy.PolicyId;
+            }
 
-            //if (Guid.Empty == ss.ConfigurationId) ss.ConfigurationId = Guid.NewGuid();
+            if (secret.Policy != null) ss.PolicyId = secret.Policy.PolicyId;
 
-            ////todo: what to we do w/ Policy here?
-
-            //if (Guid.Empty == ss.PolicyId && null != ss.Policy)
-            //{
-            //    if (Guid.TryParse(await SavePolicyAsync(ss.Policy, token), out Guid id))
-            //    {
-            //        ss.PolicyId = id;
-            //    }
-            //}
-
-            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, ss.Key), Newtonsoft.Json.JsonConvert.SerializeObject(ss), token);
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Secret, ss.Key), GetObjectJson<Contracts.Secret>(ss), token);
 
             return ss.ConfigurationId.ToString();
         }
@@ -161,17 +160,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
 
             if (Guid.Empty == sc.ConfigurationId) sc.ConfigurationId = Guid.NewGuid();
 
-            //todo: what to we do w/ Policy here?
-
-            //if (Guid.Empty == sc.PolicyId && null != sc.Policy)
-            //{
-            //    if (Guid.TryParse(await SavePolicyAsync(sc.Policy, token), out Guid id))
-            //    {
-            //        sc.PolicyId = id;
-            //    }
-            //}
-
-            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, sc.ConfigurationId.ToString()), Newtonsoft.Json.JsonConvert.SerializeObject(sc), token);
+            await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, sc.ConfigurationId.ToString()), GetObjectJson<Contracts.Config>(sc), token);
 
             return sc.ConfigurationId.ToString();
         }
@@ -191,30 +180,67 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
 
 
 
+        private static string GetObjectJson<T>(T instance)
+        {
 
+            return Newtonsoft.Json.JsonConvert.SerializeObject(instance, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                Formatting = Newtonsoft.Json.Formatting.Indented,
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            });
+        }
 
         private static async Task SaveObjectAsync(BlobContainerClient client, string fileName, string json, CancellationToken token)
         {
-            using (System.IO.Stream ms = new System.IO.MemoryStream(System.Text.Encoding.UTF32.GetBytes(json)))
+            try
             {
-                await client.UploadBlobAsync(fileName, ms, token);
+
+                using (System.IO.Stream ms = new System.IO.MemoryStream(System.Text.Encoding.UTF32.GetBytes(json)))
+                {
+                    ms.Position = 0;
+                    await client.GetBlobClient(fileName).UploadAsync(ms, overwrite: true, cancellationToken: token);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
         private static async Task<string> GetObjectAsync(BlobContainerClient client, string fileName, CancellationToken token)
         {
-            BlobClient blobClient = client.GetBlobClient(fileName);
-
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            try
             {
-                await blobClient.DownloadToAsync(ms, token);
+                BlobClient blobClient = client.GetBlobClient(fileName);
+                if (await blobClient.ExistsAsync())
+                {
+                    using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                    {
+                        await blobClient.DownloadToAsync(ms, token);
 
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(ms))
-                    return await sr.ReadToEndAsync();
+                        ms.Position = 0;
+
+                        using (System.IO.StreamReader sr = new System.IO.StreamReader(ms))
+                            return await sr.ReadToEndAsync();
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return null;
         }
         private static async Task DeleteObjectAsync(BlobContainerClient client, string fileName, CancellationToken token)
         {
-            await client.DeleteBlobIfExistsAsync(fileName, cancellationToken: token);
+            try
+            {
+                await client.DeleteBlobIfExistsAsync(fileName, cancellationToken: token);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private static string FormatFileName(string folder, string id)

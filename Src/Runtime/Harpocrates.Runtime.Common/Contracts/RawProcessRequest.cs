@@ -62,6 +62,23 @@ namespace Harpocrates.Runtime.Common.Contracts
                 ObjectType = FormattedProcessRequest.SecretType.Unknown
             };
 
+            string topic = item.GetValue("topic").ToString();
+
+            if (!string.IsNullOrWhiteSpace(topic))
+            {
+                string startToken = "/subscriptions/", endToken = "/resourceGroups/";
+
+                int startIndex = topic.IndexOf(startToken);
+                if (startIndex >= 0)
+                {
+                    startIndex += startToken.Length;
+                    int endIndex = topic.IndexOf(endToken, startIndex);
+                    if (endIndex > startIndex)
+                    {
+                        request.SubscriptionId = topic.Substring(startIndex, endIndex - startIndex);
+                    }
+                }
+            }
 
             JObject data = item.GetValue("data") as JObject;
 

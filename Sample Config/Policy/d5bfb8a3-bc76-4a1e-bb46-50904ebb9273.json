@@ -1,0 +1,6 @@
+{
+	"policyId": "d5bfb8a3-bc76-4a1E-bb46-50904ebb9273",
+	"name": "30-Day Rotation",
+	"description": "Rotates secrets every 30 days",
+	"rotationInterval": "30.00:00:00"
+}

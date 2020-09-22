@@ -90,6 +90,9 @@ namespace Harpocrates.Runtime
                     _logger.LogWarning("Please ensure that the queue access policy is set to 'Azure AD User Account'");
                 }
             }
+            catch (Exception ex) {
+                throw;
+            }
         }
 
         private async Task<bool> PendingMessagesExistAsync(CancellationToken token)
@@ -100,6 +103,8 @@ namespace Harpocrates.Runtime
             }
             catch (Azure.RequestFailedException ex)
             {
+                //user must be in 'Storage Queue Data Message Processor' role
+
                 _logger.LogWarning($"Unable to peek messages in queue: {_queueClient.Name}. Ensure the queue is created and appropriate permissions have been set. Details: {ex.Message}");
 
                 if (ex.Status == 403 && _config.MonitoredQueueConnectionString.KeyType == Common.DataAccess.ConnectionStrings.StorageAccountConnectionString.AccountKeyType.None)

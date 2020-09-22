@@ -31,5 +31,15 @@ namespace Harpocrates.Host.AzureFunction
         {
             throw new NotImplementedException();
         }
+
+        protected override CQRSStorageAccountConnectionString OnGetSecretManagementConnectionString()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IServiceProvider OnGetServiceProvider()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

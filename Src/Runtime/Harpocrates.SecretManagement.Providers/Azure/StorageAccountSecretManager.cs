@@ -1,4 +1,5 @@
-﻿using Harpocrates.SecretManagement.Contracts.Data;
+﻿using Harpocrates.Runtime.Common.Configuration;
+using Harpocrates.SecretManagement.Contracts.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,16 +10,14 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     internal class StorageAccountSecretManager : AzureSecretManager
     {
+        public StorageAccountSecretManager(Runtime.Common.Configuration.IConfigurationManager config) : base(config) { }
         private static class ValidKeyNames
         {
-            public const string Key1 = "Key1";
-            public const string Key2 = "Key2";
+            public const string Key1 = "key1";
+            public const string Key2 = "key2";
         }
         protected override async Task<Key> OnRotateSecretAsync(Secret secret, CancellationToken token)
         {
-
-            //https://github.com/Azure-Samples/storage-dotnet-manage-storage-accounts/blob/master/Program.cs
-
             Key result = new Key()
             {
                 Name = ValidKeyNames.Key1,
@@ -26,13 +25,6 @@ namespace Harpocrates.SecretManagement.Providers.Azure
             };
 
             result.Value = await GenerateKey(secret, token);
-
-            //foreach (char c in newKeyValue.ToCharArray())
-            //{
-            //    result.Value.AppendChar(c);
-            //}
-
-            //result.Value.MakeReadOnly();
 
             if (secret.CurrentKeyName == ValidKeyNames.Key1)
             {
@@ -45,9 +37,18 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
         private async Task<string> GenerateKey(Secret secret, CancellationToken token)
         {
-            //todo: parse out connection string or use some other construct
-            var account = await GetAzureEnvironment().StorageAccounts.GetByIdAsync(secret.Configuration.OriginConnectionString);
-            //var keys = await account.GetKeysAsync(token);
+            Runtime.Common.DataAccess.ConnectionStrings.StorageAccountConnectionString sacs = new Runtime.Common.DataAccess.ConnectionStrings.StorageAccountConnectionString()
+            {
+                ConnectionString = secret.Configuration.SourceConnectionString
+            };
+
+            var azure = GetAzureEnvironment();
+
+            string accountId = $"/subscriptions/{secret.Configuration.SubscriptionId}/resourceGroups/{sacs.ResourceGroup}/providers/Microsoft.Storage/storageAccounts/{sacs.AccountName}";
+
+            var account = await azure.StorageAccounts.GetByIdAsync(accountId);
+
+            if (string.IsNullOrWhiteSpace(secret.CurrentKeyName)) secret.CurrentKeyName = ValidKeyNames.Key1;
 
             var keys = await account.RegenerateKeyAsync(secret.CurrentKeyName, token);
 

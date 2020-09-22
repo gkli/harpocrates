@@ -18,6 +18,13 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string SubscriptionId { get; set; } //id of subscription that has the KeyVault instance
         public string CurrentKeyName { get; set; }
 
+        //todo: allow configuring complex Secrets: ie. ConnectionString: UserId="managed-secret-123";Password="managed-secret-124"
+
+        /// <summary>
+        /// Format string used to store secret value in ex: Database=db1;sever=server1;userId:John;Password:{managed-secret}
+        /// </summary>
+        public string FormatExpression { get; set; }
+
         public static SecretBase FromKeyvaultUri(string uri)
         {
             Uri u = new Uri(uri);

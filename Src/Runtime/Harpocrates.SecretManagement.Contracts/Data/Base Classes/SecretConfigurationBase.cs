@@ -6,10 +6,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 {
     public class SecretConfigurationBase
     {
-        public Guid ConfigurationId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-
         public enum SecretType
         {
             StorageAccountKey,
@@ -19,9 +15,13 @@ namespace Harpocrates.SecretManagement.Contracts.Data
             APIMManagement
         }
 
-        public string SecretUri { get; set; }
+        public Guid ConfigurationId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
 
-        public string OriginConnectionString { get; set; }
+        // public string SecretUri { get; set; }
+
+        public string SourceConnectionString { get; set; }
 
         public string SubscriptionId { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using Harpocrates.SecretManagement.Contracts.Data;
+﻿using Harpocrates.Runtime.Common.Configuration;
+using Harpocrates.SecretManagement.Contracts.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,10 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     internal class CosmosDbSecretManager : AzureSecretManager
     {
+        public CosmosDbSecretManager(IConfigurationManager config) : base(config)
+        {
+        }
+
         protected override Task<Key> OnRotateSecretAsync(Secret secret, CancellationToken token)
         {
             throw new NotImplementedException();

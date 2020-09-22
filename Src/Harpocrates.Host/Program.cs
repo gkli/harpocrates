@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Harpocrates.Runtime.Common.Configuration.KeyVault;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -11,34 +13,52 @@ namespace Harpocrates.Host
 
         static void Main(string[] args)
         {
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection, args);
+            var builder = new HostBuilder()
+                .ConfigureAppConfiguration((context, config) =>
+            {
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+                var builtConfig = config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                  .AddEnvironmentVariables()
+                  .AddCommandLine(args)
+                  .Build();
 
-            var host = serviceProvider.GetService<Runtime.Host>();
+                ManagedIdentityKeyVaultConfig cfg = new ManagedIdentityKeyVaultConfig(builtConfig["KVConfig:KeyVaultName"]);
+
+                ConfigurationOptions options = new ConfigurationOptions();
+                options.DefaultConfig = cfg;
+
+                config.AddKeyVaultProxyConfigurationProvider(builtConfig, options);
+
+                //context.Configuration = config.Build();
+
+            }).ConfigureServices((context, services) =>
+            {
+
+                services.AddLogging(configure => configure.AddConsole())
+                    //.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Information)
+                    .AddSingleton<IConfiguration>(context.Configuration)
+                    .AddSingleton<Runtime.Common.Configuration.IConfigurationManager, HostConfigurationManager>()
+                    .AddTransient<SecretManagement.DataAccess.ISecretMetadataDataAccessProvider>(s =>
+                    {
+                        Runtime.Common.Configuration.IConfigurationManager cfg = s.GetRequiredService<Runtime.Common.Configuration.IConfigurationManager>();
+
+                        return new SecretManagement.DataAccess.StorageAccount.SecretMetadataStorageAccountDataAccessProvider(
+                            cfg.SecretManagementConnectionString, cfg);
+                    })
+                    .AddTransient<Runtime.Host>();
+
+
+
+
+
+            });
+
+            var appHost = builder.Build();
+
+            var host = appHost.Services.GetService<Runtime.Host>();
 
             host.StartAsync(_cts.Token).Wait();
-
         }
 
-
-        private static void ConfigureServices(IServiceCollection services, string[] args)
-        {
-
-            IConfiguration config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddEnvironmentVariables()
-                    .AddCommandLine(args)
-                    .Build();
-
-            services.AddLogging(configure => configure.AddConsole())
-                //.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Information)
-                .AddSingleton<IConfiguration>(config)
-                .AddSingleton<Runtime.Common.Configuration.IConfigurationManager, HostConfigurationManager>()
-                //.AddTransient<Processors.StorageCalculator.DataAccess.IStorageDataAccessProvider, Processors.StorageCalculator.DataAccess.StorageAccount.StorageAccountDataAccessProvider>()
-                //.AddTransient<Processors.StorageCalculator.DataAccess.IRecordKeepingDataAccessProvider, Processors.StorageCalculator.DataAccess.CosmosDb.CosmosDbRecordKeepingDataAccessProvider>()
-                .AddTransient<Runtime.Host>();
-        }
     }
 }

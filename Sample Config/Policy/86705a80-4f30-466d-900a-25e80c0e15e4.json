@@ -1,0 +1,6 @@
+{
+	"policyId": "86705a80-4f30-466d-900a-25e80c0e15e4",
+	"name": "15-Day Rotation",
+	"description": "Rotates secrets every 15 days",
+	"rotationInterval": "15.00:00:00"
+}

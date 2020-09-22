@@ -17,10 +17,7 @@ namespace Harpocrates.Runtime.Helpers
 
             if (_clientCache.ContainsKey(cacheKey)) return _clientCache[cacheKey];
 
-            Uri uri = GetMonitoredQueueUri(queueName, config);
-
-            if (sacs.KeyType == Common.DataAccess.ConnectionStrings.StorageAccountConnectionString.AccountKeyType.None)
-                return new Azure.Storage.Queues.QueueClient(uri, new DefaultAzureCredential());
+            Uri uri = GetMonitoredQueueUri(queueName, sacs);
 
             switch (sacs.KeyType)
             {
@@ -60,11 +57,8 @@ namespace Harpocrates.Runtime.Helpers
             return client;
         }
 
-        public static Uri GetMonitoredQueueUri(string queueName, Common.Configuration.IConfigurationManager config)
+        public static Uri GetMonitoredQueueUri(string queueName, Common.DataAccess.ConnectionStrings.StorageAccountConnectionString sacs)
         {
-
-            Common.DataAccess.ConnectionStrings.StorageAccountConnectionString sacs = config.MonitoredQueueConnectionString;
-
             //check if KeyType = SAS and change URL...
 
             Uri uri = new Uri(new Uri(sacs.AccountEndpoint), queueName);

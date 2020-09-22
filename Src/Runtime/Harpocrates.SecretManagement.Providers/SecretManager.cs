@@ -4,13 +4,21 @@ using System.Threading.Tasks;
 
 namespace Harpocrates.SecretManagement.Providers
 {
-    public abstract class SecretManager : ISecretManagemer
+    public abstract class SecretManager : ISecretManager
     {
+
+        public SecretManager(Runtime.Common.Configuration.IConfigurationManager config)
+        {
+            Config = config;
+        }
+
+        protected Runtime.Common.Configuration.IConfigurationManager Config { get; private set; }
+
         public async Task<Key> RotateSecretAsync(Contracts.Data.Secret secret, CancellationToken token)
         {
             if (null == secret) throw new ArgumentNullException(nameof(secret));
             if (null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
-            if (null == secret.Configuration.Policy) throw new ArgumentNullException(nameof(secret.Configuration.Policy));
+            if (null == secret.Policy && null == secret.Configuration.DefaultPolicy) throw new ArgumentException("A secret.Policy or secret.Configuration.DefaultPolicy must be specified");
 
             Key result = await OnRotateSecretAsync(secret, token);
             if (null != result)

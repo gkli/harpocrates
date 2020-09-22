@@ -9,6 +9,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     internal class APIMManagementSecretManager : AzureSecretManager
     {
+        public APIMManagementSecretManager(Runtime.Common.Configuration.IConfigurationManager config) : base(config) { }
         protected override Task<Key> OnRotateSecretAsync(Secret secret, CancellationToken token)
         {
             throw new NotImplementedException();

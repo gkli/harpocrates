@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Harpocrates.SecretManagement.Contracts.Data
 {
-    public class SecretConfiguration:SecretConfigurationBase
+    public class SecretConfiguration : SecretConfigurationBase
     {
-       
 
-        public SecretPolicy Policy { get; set; }
+
+        public SecretPolicy DefaultPolicy { get; set; }
     }
 }
