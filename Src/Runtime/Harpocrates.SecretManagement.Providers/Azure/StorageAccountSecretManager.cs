@@ -27,18 +27,19 @@ namespace Harpocrates.SecretManagement.Providers.Azure
                 Value = string.Empty
             };
 
-            result.Value = await GenerateKey(secret, token);
-
-            if (secret.CurrentKeyName == ValidKeyNames.Key1)
+            if (string.Compare(secret.CurrentKeyName, ValidKeyNames.Key1, true) == 0)
             {
                 result.Name = ValidKeyNames.Key2;
             }
+
+            result.Value = await GenerateKey(secret, result.Name, token);
+
 
             return result;
 
         }
 
-        private async Task<string> GenerateKey(Secret secret, CancellationToken token)
+        private async Task<string> GenerateKey(Secret secret, string newKeyName, CancellationToken token)
         {
             Runtime.Common.DataAccess.ConnectionStrings.StorageAccountConnectionString sacs = new Runtime.Common.DataAccess.ConnectionStrings.StorageAccountConnectionString()
             {
@@ -49,15 +50,15 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
             string accountId = $"/subscriptions/{secret.Configuration.SubscriptionId}/resourceGroups/{sacs.ResourceGroup}/providers/Microsoft.Storage/storageAccounts/{sacs.AccountName}";
 
-            var account = await azure.StorageAccounts.GetByIdAsync(accountId);
+            var account = await azure.StorageAccounts.GetByIdAsync(accountId, token);
 
-            if (string.IsNullOrWhiteSpace(secret.CurrentKeyName)) secret.CurrentKeyName = ValidKeyNames.Key1;
+            //if (string.IsNullOrWhiteSpace(secret.CurrentKeyName)) secret.CurrentKeyName = ValidKeyNames.Key1;
 
-            var keys = await account.RegenerateKeyAsync(secret.CurrentKeyName, token);
+            var keys = await account.RegenerateKeyAsync(newKeyName, token);
 
             foreach (var key in keys)
             {
-                if (string.Compare(key.KeyName, secret.CurrentKeyName, true) == 0)
+                if (string.Compare(key.KeyName, newKeyName, true) == 0)
                 {
                     return key.Value;
                 }

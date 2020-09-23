@@ -9,6 +9,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         Unspecified,
         StorageAccountKey,
         CosmosDbAccountKey,
+        CosmosDbAccountReadOnlyKey,
         SqlServerPassword,
         EventGrid,
         APIMManagement

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
 {
-    public class CosmosDbConnectionString : ConnectionStringBase
+    public class CosmosDbConnectionString : AzureResourceConnectionString
     {
         private class Keys
         {
@@ -72,7 +72,14 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
             }
         }
 
+        public string AccountName { get { return GetAccountName(); } }
 
+        private string GetAccountName()
+        {
+            Uri uri = new Uri(AccountEndpoint);
+            int firstDotIdx = uri.Host.IndexOf(".");
+            return uri.Host.Substring(0, firstDotIdx);
+        }
 
     }
 }

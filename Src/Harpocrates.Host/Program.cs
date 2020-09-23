@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace Harpocrates.Host
 {
@@ -36,7 +37,7 @@ namespace Harpocrates.Host
             }).ConfigureServices((context, services) =>
             {
 
-                services.AddLogging(configure => configure.AddConsole())
+                services.AddLogging(configure => configure.AddConsole().AddApplicationInsights())
                     //.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Information)
                     .AddSingleton<IConfiguration>(context.Configuration)
                     .AddSingleton<Runtime.Common.Configuration.IConfigurationManager, HostConfigurationManager>()
@@ -47,6 +48,7 @@ namespace Harpocrates.Host
                         return new SecretManagement.DataAccess.StorageAccount.SecretMetadataStorageAccountDataAccessProvider(
                             cfg.SecretManagementConnectionString, cfg);
                     })
+                    //.AddApplicationInsightsTelemetryWorkerService("")
                     .AddTransient<Runtime.Host>();
             });
 
@@ -54,7 +56,7 @@ namespace Harpocrates.Host
 
             var host = appHost.Services.GetService<Runtime.Host>();
 
-          //host.CreateSampleDataSetAsync(_cts.Token).Wait();
+            //host.CreateSampleDataSetAsync(_cts.Token).Wait();
 
             host.StartAsync(_cts.Token).Wait();
         }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
 {
-    public class StorageAccountConnectionString : ConnectionStringBase
+    public class StorageAccountConnectionString : AzureResourceConnectionString
     {
         public enum AccountKeyType
         {
@@ -18,7 +18,6 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
             public const string AccountEndpoint = "AccountEndpoint";
             public const string AccountKey = "AccountKey";
             public const string ContainerName = "Container";
-            public const string ResourceGroup = "ResourceGroup";
             public const string KeyType = "KeyType";
         }
 
@@ -62,18 +61,7 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
             }
         }
 
-        public string ResourceGroup
-        {
-            get
-            {
-                if (Builder.TryGetValue(Keys.ResourceGroup, out object v)) return v as string;
-                return string.Empty;
-            }
-            set
-            {
-                Builder.Add(Keys.ResourceGroup, value);
-            }
-        }
+       
         public string AccountName { get { return GetAccountName(); } }
 
         public AccountKeyType KeyType

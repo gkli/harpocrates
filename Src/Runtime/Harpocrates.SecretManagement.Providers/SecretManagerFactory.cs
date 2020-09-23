@@ -90,6 +90,8 @@ namespace Harpocrates.SecretManagement.Providers
                     return new Azure.StorageAccountSecretManager(_config, _logger);
                 case ServiceType.CosmosDbAccountKey:
                     return new Azure.CosmosDbSecretManager(_config, _logger);
+                case ServiceType.CosmosDbAccountReadOnlyKey:
+                    return new Azure.CosmosDbReadOnlySecretManager(_config, _logger);
                 case ServiceType.EventGrid:
                     return new Azure.EventGridSecretManager(_config, _logger);
                 case ServiceType.APIMManagement:

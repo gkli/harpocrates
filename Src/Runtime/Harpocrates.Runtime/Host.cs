@@ -129,6 +129,30 @@ namespace Harpocrates.Runtime
                 Policy = policies[Guid.Parse("d5bfb8a3-bc76-4a1E-bb46-50904ebb9273")]
             });
 
+            id = Guid.Parse("DFA55385-9ADB-4AF4-BCBA-990E129A3D46");
+            configs.Add(id, new SecretManagement.Contracts.Data.SecretConfiguration()
+            {
+                ConfigurationId = id,
+                Name = "esri-poc-db master",
+                Description = "esri-poc-db cosmsodb account",
+                ServiceType = SecretManagement.Contracts.Data.ServiceType.CosmosDbAccountKey,
+                SourceConnectionString = "AccountEndpoint=https://esri-poc-db.documents.azure.com:443;ResourceGroup=ESRI-POC;",
+                SubscriptionId = subscriptionId,
+                Policy = policies[Guid.Parse("d5bfb8a3-bc76-4a1E-bb46-50904ebb9273")]
+            });
+
+            id = Guid.Parse("F43A49AC-C8B9-46D3-9DE3-5E552634F953");
+            configs.Add(id, new SecretManagement.Contracts.Data.SecretConfiguration()
+            {
+                ConfigurationId = id,
+                Name = "esri-poc-db ro",
+                Description = "esri-poc-db cosmsodb account - read only",
+                ServiceType = SecretManagement.Contracts.Data.ServiceType.CosmosDbAccountReadOnlyKey,
+                SourceConnectionString = "AccountEndpoint=https://esri-poc-db.documents.azure.com:443;ResourceGroup=ESRI-POC;",
+                SubscriptionId = subscriptionId,
+                Policy = policies[Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216")]
+            });
+
             foreach (var config in configs.Values)
             {
                 await dataProvider.SaveConfigurationAsync(config, token);
@@ -136,11 +160,15 @@ namespace Harpocrates.Runtime
             #endregion
 
             string[] urls = new string[]
-                     {"https://harpocrates-test2.vault.azure.net/secrets/harpocratestest2-key/d239cec181a24ce1b382dd2cb514c0ee",
-                         "https://harpocrates-test1.vault.azure.net/secrets/harpocratestest1-key/b349f2ecea8b4306af2fb0b1b5aff7e9",
-                         "https://harpocrates-test2.vault.azure.net/secrets/App2-Connection-String/0d91baac50b746f9af3d4fdce8c93cb7",
-                         "https://harpocrates-test2.vault.azure.net/secrets/App1-Connection-String/50ddd0d3e6d248cfa1ebb56145848189",
-                         "https://harpocrates-test1.vault.azure.net/secrets/Custom-app-composite-string/cb0fe84f326540309c5d151283206fa7"};
+                     {"https://harpocrates-test2.vault.azure.net/secrets/harpocratestest2-key/d239cec181a24ce1b382dd2cb514c0ee",                //0
+                         "https://harpocrates-test1.vault.azure.net/secrets/harpocratestest1-key/b349f2ecea8b4306af2fb0b1b5aff7e9",             //1
+                         "https://harpocrates-test2.vault.azure.net/secrets/App2-Connection-String/0d91baac50b746f9af3d4fdce8c93cb7",           //2
+                         "https://harpocrates-test2.vault.azure.net/secrets/App1-Connection-String/50ddd0d3e6d248cfa1ebb56145848189",           //3
+                         "https://harpocrates-test1.vault.azure.net/secrets/Custom-app-composite-string/cb0fe84f326540309c5d151283206fa7",      //4
+                         "https://harpocrates-test1.vault.azure.net/secrets/cosmosDb-master-key/b053d0f8e7ec4d9b954f87bee16a02f6",              //5
+                         "https://harpocrates-test1.vault.azure.net/secrets/cosmosDb-readonly0key/e7067013110a45cfa38871f26d9cbcd6",            //6
+                         "https://harpocrates-test2.vault.azure.net/secrets/Esri-Db-MasterConnectionString/cc5b3bad3ac1481e9ed63cdb9a6cc95d",   //7
+                         "https://harpocrates-test2.vault.azure.net/secrets/Esri-Db-ReadOnlyConnectionString/dea4ba396bcb49baa926227f79f9cc92"};//8    
 
             List<SecretManagement.Contracts.Data.Secret> secrets = new List<SecretManagement.Contracts.Data.Secret>();
 
@@ -222,6 +250,66 @@ namespace Harpocrates.Runtime
                 FormatExpression = $"AccountKey1={{{{{secrets[0].Key}}}}};AccountKey2={{{{{secrets[1].Key}}}}};",
                 SecretType = SecretManagement.Contracts.Data.SecretType.Dependency
             });
+
+            sb = SecretManagement.Contracts.Data.Secret.FromKeyvaultUri(urls[5]);
+            secrets.Add(new SecretManagement.Contracts.Data.Secret()
+            {
+                ObjectName = sb.ObjectName,
+                ObjectType = sb.ObjectType,
+                VaultName = sb.VaultName,
+                Version = sb.Version,
+                SubscriptionId = subscriptionId,
+                Name = "CosmosDb Master Key",
+                Description = "ComsosDb Account Master Key",
+                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                FormatExpression = null,
+                Configuration = configs[Guid.Parse("DFA55385-9ADB-4AF4-BCBA-990E129A3D46")]
+            });
+
+            sb = SecretManagement.Contracts.Data.Secret.FromKeyvaultUri(urls[6]);
+            secrets.Add(new SecretManagement.Contracts.Data.Secret()
+            {
+                ObjectName = sb.ObjectName,
+                ObjectType = sb.ObjectType,
+                VaultName = sb.VaultName,
+                Version = sb.Version,
+                SubscriptionId = subscriptionId,
+                Name = "CosmosDb Readonly Key",
+                Description = "ComsosDb Account Read-Only Key",
+                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                FormatExpression = null,
+                Configuration = configs[Guid.Parse("F43A49AC-C8B9-46D3-9DE3-5E552634F953")]
+            });
+
+
+            sb = SecretManagement.Contracts.Data.Secret.FromKeyvaultUri(urls[7]);
+            secrets.Add(new SecretManagement.Contracts.Data.Secret()
+            {
+                ObjectName = sb.ObjectName,
+                ObjectType = sb.ObjectType,
+                VaultName = sb.VaultName,
+                Version = sb.Version,
+                SubscriptionId = subscriptionId,
+                Name = "Esri Db Master",
+                Description = "ComsoDb account connection string for esri-db app",
+                FormatExpression = $"AccountEndpoint=https://esri-poc-db.documents.azure.com:443/;AccountKey={{{{{secrets[5].Key}}}}};",
+                SecretType = SecretManagement.Contracts.Data.SecretType.Dependency
+            });
+
+            sb = SecretManagement.Contracts.Data.Secret.FromKeyvaultUri(urls[8]);
+            secrets.Add(new SecretManagement.Contracts.Data.Secret()
+            {
+                ObjectName = sb.ObjectName,
+                ObjectType = sb.ObjectType,
+                VaultName = sb.VaultName,
+                Version = sb.Version,
+                SubscriptionId = subscriptionId,
+                Name = "Esri Db RO",
+                Description = "ComsoDb account read-only connection string for esri-db app",
+                FormatExpression = $"AccountEndpoint=https://esri-poc-db.documents.azure.com:443/;AccountKey={{{{{secrets[6].Key}}}}};",
+                SecretType = SecretManagement.Contracts.Data.SecretType.Dependency
+            });
+
             #endregion
 
             foreach (var secret in secrets)
@@ -233,6 +321,9 @@ namespace Harpocrates.Runtime
             await dataProvider.AddSecretDependencyAsync(secrets[0].Key, secrets[3].Key, token);
             await dataProvider.AddSecretDependencyAsync(secrets[0].Key, secrets[4].Key, token);
             await dataProvider.AddSecretDependencyAsync(secrets[1].Key, secrets[4].Key, token);
+
+            await dataProvider.AddSecretDependencyAsync(secrets[5].Key, secrets[7].Key, token);
+            await dataProvider.AddSecretDependencyAsync(secrets[6].Key, secrets[8].Key, token);
 
             var children = await dataProvider.GetDependentSecretsAsync(secrets[0].Key, token);
         }
