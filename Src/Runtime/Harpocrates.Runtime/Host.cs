@@ -58,7 +58,7 @@ namespace Harpocrates.Runtime
             Dictionary<Guid, SecretManagement.Contracts.Data.SecretPolicy> policies = new Dictionary<Guid, SecretManagement.Contracts.Data.SecretPolicy>();
             #region Create Policies
 
-            //Near expiry is raised 30 days before expiration, so baseline all durations w/ 30 days
+            //Near expiry is raised 30 days before expiration, so use "Expiring" only for long term rotations
 
             Guid id = Guid.Parse("86705a80-4f30-466d-900a-25e80c0e15e4");
             policies.Add(id, new SecretManagement.Contracts.Data.SecretPolicy()
@@ -66,7 +66,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "15-Day Rotation",
                 Description = "Rotates secrets every 15 days",
-                RotationInterval = TimeSpan.FromDays(45)
+                RotationInterval = TimeSpan.FromDays(15)
             });
 
             id = Guid.Parse("d5bfb8a3-bc76-4a1E-bb46-50904ebb9273");
@@ -75,7 +75,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "30-Day Rotation",
                 Description = "Rotates secrets every 30 days",
-                RotationInterval = TimeSpan.FromDays(60)
+                RotationInterval = TimeSpan.FromDays(30)
             });
 
             id = Guid.Parse("6CADA23D-76B1-4B50-A773-E4D0822D6821");
@@ -84,7 +84,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "24-Hour Rotation",
                 Description = "Rotates secrets every 24 hours",
-                RotationInterval = TimeSpan.FromDays(31)
+                RotationInterval = TimeSpan.FromDays(1)
             });
 
             id = Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216");
@@ -93,7 +93,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "1-Hour Rotation",
                 Description = "Rotates secrets every 1 hour",
-                RotationInterval = TimeSpan.FromDays(30) + TimeSpan.FromHours(1)
+                RotationInterval = TimeSpan.FromHours(1)
             }); ;
 
             foreach (var policy in policies.Values)

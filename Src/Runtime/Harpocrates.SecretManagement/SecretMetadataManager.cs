@@ -52,7 +52,10 @@ namespace Harpocrates.SecretManagement
 
         public async Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
         {
-            throw new NotImplementedException();
+            //atm, both expired and expiring events seem to warrant same treatment... 
+            //expired works better if you need shorter rotation timeframes as expired is fired once, while expiring is fired repeatedly until secret is expired
+            await ProcessExpiringSecretAsync(secretUri, token);
+            //throw new NotImplementedException();
 
             //todo: delete secret version? mark secret version as Disabled?
         }
