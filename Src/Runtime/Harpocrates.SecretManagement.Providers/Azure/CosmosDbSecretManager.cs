@@ -1,5 +1,6 @@
 ﻿using Harpocrates.Runtime.Common.Configuration;
 using Harpocrates.SecretManagement.Contracts.Data;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     internal class CosmosDbSecretManager : AzureSecretManager
     {
-        public CosmosDbSecretManager(IConfigurationManager config) : base(config)
+        public CosmosDbSecretManager(IConfigurationManager config, ILogger logger) : base(config, logger)
         {
         }
 

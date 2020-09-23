@@ -2,7 +2,11 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Harpocrates.SecretManagement.Contracts.Data;
+using Microsoft.Extensions.Azure;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +19,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             public const string Secret = "secrets";
             public const string Policy = "policies";
             public const string Config = "configurations";
+            public const string Associations = "associations";
         }
 
         private readonly BlobContainerClient _rootContainer;
@@ -46,6 +51,8 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
         {
             SecretBase sb = await GetSecretAsync(key, token);
 
+            if (null == sb) return null; //couldn't find base config, nothing to do here..
+
             if (null != token && token.IsCancellationRequested) return null; //cancel
 
             Secret s = sb as Secret; //should never really happen give the code flow...
@@ -56,7 +63,13 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                     ObjectName = sb.ObjectName,
                     ObjectType = sb.ObjectType,
                     VaultName = sb.VaultName,
-                    Version = sb.Version
+                    Version = sb.Version,
+                    CurrentKeyName = sb.CurrentKeyName,
+                    Description = sb.Description,
+                    FormatExpression = sb.FormatExpression,
+                    Name = sb.Name,
+                    SubscriptionId = sb.SubscriptionId,
+                    SecretType = sb.SecretType
                 };
 
             }
@@ -67,9 +80,9 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             {
                 s.Configuration = await GetConfigurationAsync(cs.ConfigurationId.ToString(), token);
 
-                if (null != token && token.IsCancellationRequested) return null; //cancel
+                //if (null != token && token.IsCancellationRequested) return null; //cancel
 
-                if (cs.PolicyId.HasValue && cs.PolicyId.Value != Guid.Empty) s.Policy = await GetPolicyAsync(cs.PolicyId.Value.ToString(), token);
+                //if (cs.PolicyId.HasValue && cs.PolicyId.Value != Guid.Empty) s.Policy = await GetPolicyAsync(cs.PolicyId.Value.ToString(), token);
             }
 
             return s;
@@ -95,9 +108,9 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             if (null != cfg)
             {
                 result = cfg.ToSecretConfiguration();
-                if (result.DefaultPolicy.PolicyId != Guid.Empty)
+                if (result.Policy.PolicyId != Guid.Empty)
                 {
-                    result.DefaultPolicy = await GetPolicyAsync(result.DefaultPolicy.PolicyId.ToString(), token);
+                    result.Policy = await GetPolicyAsync(result.Policy.PolicyId.ToString(), token);
                 }
             }
 
@@ -137,17 +150,14 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                 VaultName = secret.VaultName,
                 Version = secret.Version,
                 SubscriptionId = secret.SubscriptionId,
-                FormatExpression = secret.FormatExpression
+                FormatExpression = secret.FormatExpression,
+                SecretType = secret.SecretType
             };
 
             if (secret.Configuration != null)
             {
                 ss.ConfigurationId = secret.Configuration.ConfigurationId;
-
-                if (null != secret.Configuration.DefaultPolicy) ss.PolicyId = secret.Configuration.DefaultPolicy.PolicyId;
             }
-
-            if (secret.Policy != null) ss.PolicyId = secret.Policy.PolicyId;
 
             await SaveObjectAsync(_rootContainer, FormatFileName(StorageFolders.Secret, ss.Key), GetObjectJson<Contracts.Secret>(ss), token);
 
@@ -179,6 +189,64 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
         }
 
 
+        protected async override Task OnAddSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token)
+        {
+            string fileName = FormatAssociationFileName(dependsOnKey, dependentKey);
+            string json = $"{{\"depedendent\": \"{dependentKey}\", \"depedendsOn\": \"{dependsOnKey}\"}}";
+
+            await SaveObjectAsync(_rootContainer, fileName, json, token);
+        }
+
+        protected async override Task<IEnumerable<Secret>> OnGetDependentSecretsAsync(string dependsOnKey, CancellationToken token)
+        {
+            List<Task<Secret>> workers = new List<Task<Secret>>();
+
+            //List<string> list = new List<string>();
+
+            string continuationToken = null;
+            List<Secret> secrets = new List<Secret>();
+
+            do
+            {
+                try
+                {
+                    var resultSegment = _rootContainer.GetBlobs(prefix: $"{StorageFolders.Associations}/{dependsOnKey.ToLower()}/").AsPages(continuationToken, 50);
+
+                    foreach (Azure.Page<BlobItem> blobPage in resultSegment)
+                    {
+
+                        foreach (BlobItem blobItem in blobPage.Values)
+                        {
+                            string dependencyKey = System.IO.Path.GetFileNameWithoutExtension(blobItem.Name);
+
+                            //schedule work to be done here
+                            workers.Add(GetConfiguredSecretAsync(dependencyKey, token));
+                        }
+                        continuationToken = blobPage.ContinuationToken;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            } while (false == string.IsNullOrWhiteSpace(continuationToken));
+
+            Task.WaitAll(workers.ToArray(), token);
+
+            foreach (var t in workers)
+            {
+                secrets.Add(t.Result);
+            }
+
+            return secrets.AsReadOnly();
+        }
+
+        protected async override Task OnRemoveSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token)
+        {
+            string fileName = FormatAssociationFileName(dependsOnKey, dependentKey);
+            await DeleteObjectAsync(_rootContainer, fileName, token);
+        }
+
 
         private static string GetObjectJson<T>(T instance)
         {
@@ -195,7 +263,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             try
             {
 
-                using (System.IO.Stream ms = new System.IO.MemoryStream(System.Text.Encoding.UTF32.GetBytes(json)))
+                using (System.IO.Stream ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)))
                 {
                     ms.Position = 0;
                     await client.GetBlobClient(fileName).UploadAsync(ms, overwrite: true, cancellationToken: token);
@@ -243,6 +311,10 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             }
         }
 
+        private static string FormatAssociationFileName(string dependsOn, string dependent)
+        {
+            return FormatFileName($"{StorageFolders.Associations}/{dependsOn.ToLower()}", dependent);
+        }
         private static string FormatFileName(string folder, string id)
         {
             return $"{folder}/{id.ToLower()}.json";

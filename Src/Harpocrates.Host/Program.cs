@@ -1,4 +1,5 @@
 ﻿using Harpocrates.Runtime.Common.Configuration.KeyVault;
+using Microsoft.Azure.Management.Monitor.Fluent.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,7 @@ namespace Harpocrates.Host
 
         static void Main(string[] args)
         {
+
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration((context, config) =>
             {
@@ -46,16 +48,13 @@ namespace Harpocrates.Host
                             cfg.SecretManagementConnectionString, cfg);
                     })
                     .AddTransient<Runtime.Host>();
-
-
-
-
-
             });
 
             var appHost = builder.Build();
 
             var host = appHost.Services.GetService<Runtime.Host>();
+
+          //host.CreateSampleDataSetAsync(_cts.Token).Wait();
 
             host.StartAsync(_cts.Token).Wait();
         }

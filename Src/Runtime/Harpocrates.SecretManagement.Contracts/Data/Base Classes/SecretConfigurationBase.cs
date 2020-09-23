@@ -6,15 +6,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 {
     public class SecretConfigurationBase
     {
-        public enum SecretType
-        {
-            StorageAccountKey,
-            CosmosDbAccountKey,
-            SqlServerPassword,
-            EventGrid,
-            APIMManagement
-        }
-
         public Guid ConfigurationId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -25,6 +16,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         public string SubscriptionId { get; set; }
 
-        public SecretType Type { get; set; }
+        public ServiceType ServiceType { get; set; }
     }
 }

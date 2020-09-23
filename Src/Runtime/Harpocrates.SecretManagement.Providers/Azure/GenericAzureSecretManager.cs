@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Harpocrates.SecretManagement.Providers.Azure
 {
-    internal class SqlServerSecretManager : AzureSecretManager
+    internal class GenericAzureSecretManager : AzureSecretManager
     {
-        public SqlServerSecretManager(IConfigurationManager config, ILogger logger) : base(config, logger)
+        public GenericAzureSecretManager(IConfigurationManager config, ILogger logger) : base(config, logger)
         {
         }
 
-        protected override Task<Key> OnRotateSecretAsync(Secret secret,  CancellationToken token)
+        protected override Task<Key> OnRotateSecretAsync(Secret secret, CancellationToken token)
         {
             throw new NotImplementedException();
         }

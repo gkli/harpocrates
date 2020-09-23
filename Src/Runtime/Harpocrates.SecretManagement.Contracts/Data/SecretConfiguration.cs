@@ -8,6 +8,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
     {
 
 
-        public SecretPolicy DefaultPolicy { get; set; }
+        public SecretPolicy Policy { get; set; }
     }
 }

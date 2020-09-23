@@ -13,7 +13,7 @@ namespace Harpocrates.Runtime.Common.Contracts
             {
                 public const string Expired = "Microsoft.KeyVault.SecretExpired";
                 public const string Expiring = "Microsoft.KeyVault.SecretNearExpiry";
-                public const string Created = "Microsoft.KeyVault.Secret...";//todo: update event
+                public const string Created = "Microsoft.KeyVault.SecretNewVersionCreated";
             }
         }
         public RawProcessRequest(string json) : base(json) { }
@@ -43,7 +43,7 @@ namespace Harpocrates.Runtime.Common.Contracts
                 {
                     case KnownEvents.Secret.Created:
                         et = FormattedProcessRequest.SecretEvent.Created;
-                        //action = 
+                        action = FormattedProcessRequest.RequestedAction.ScheduleDependencyUpdates;
                         break;
                     case KnownEvents.Secret.Expiring:
                         et = FormattedProcessRequest.SecretEvent.Expiring;

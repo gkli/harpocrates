@@ -24,20 +24,25 @@ namespace Harpocrates.SecretManagement.Providers
         public async Task RotateSecretAsync(Secret secret, CancellationToken token)
         {
             if (null == secret) throw new ArgumentNullException(nameof(secret));
-            if (null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
-            if (null == secret.Policy && null == secret.Configuration.DefaultPolicy) throw new ArgumentException("A secret.Policy or secret.Configuration.DefaultPolicy must be specified");
 
-            _logger?.LogInformation($"Attempting to rotate secret {secret.Key}");
+            if (secret.SecretType == SecretType.ManagedSystem)
+            {
+                if (null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
+                if (null == secret.Configuration.Policy) throw new ArgumentException(nameof(secret.Configuration.Policy));
+            }
+
+            _logger?.LogInformation($"Attempting to rotate secret {secret.Uri}.");
 
             ISecretManager provider = null;
 
             try
             {
-                provider = CreateSecretManagementProvider(secret.Configuration.Type);
+                ServiceType effectiveServiceType = (secret.Configuration == null) ? ServiceType.Unspecified : secret.Configuration.ServiceType;
+                provider = CreateSecretManagementProvider(effectiveServiceType);
             }
             catch (InvalidOperationException)
             {
-                _logger.LogWarning($"Unable to locate SecretManager for {secret.Configuration.Type}");
+                _logger.LogWarning($"Unable to locate SecretManager for {secret.Configuration.ServiceType}");
                 throw;
             }
 
@@ -46,29 +51,29 @@ namespace Harpocrates.SecretManagement.Providers
             try
             {
                 rotated = await provider.RotateSecretAsync(secret, token);
-                _logger?.LogInformation($"Rotated secret {secret.Key}");
+                _logger?.LogInformation($"Rotated secret {secret.Uri}");
             }
             catch (Exception ex)
             {
-                _logger?.LogWarning($"Unable to rotate secret {secret.Key}. Exception: {ex.Message}");
+                _logger?.LogWarning($"Unable to rotate secret {secret.Uri}. Exception: {ex.Message}");
                 throw;
             }
 
             if (null != rotated)
             {
-                _logger?.LogInformation($"Updating secret metadata for {secret.Key}");
+                _logger?.LogInformation($"Updating secret metadata for {secret.Uri}");
                 //update Key.Name into secret record?
                 secret.CurrentKeyName = rotated.Name;
-
+                secret.Version = rotated.SecretVersion;
                 try
                 {
                     await _dataProvider.SaveSecretAsync(secret, token); //Save secret
 
-                    _logger?.LogInformation($"Updated secret metadata for {secret.Key}");
+                    _logger?.LogInformation($"Updated secret metadata for {secret.Uri}");
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning($"Unable to update secret metadata {secret.Key}. Exception: {ex.Message}");
+                    _logger?.LogWarning($"Unable to update secret metadata {secret.Uri}. Exception: {ex.Message}");
                     throw;
                 }
             }
@@ -76,21 +81,23 @@ namespace Harpocrates.SecretManagement.Providers
 
         }
 
-        private ISecretManager CreateSecretManagementProvider(SecretConfigurationBase.SecretType type)
+        private ISecretManager CreateSecretManagementProvider(ServiceType type)
         {
             //todo: look at using external configuration for mapping, allowing for providers to be added from external aseemblies / services
             switch (type)
             {
-                case SecretConfigurationBase.SecretType.StorageAccountKey:
-                    return new Azure.StorageAccountSecretManager(_config);
-                case SecretConfigurationBase.SecretType.CosmosDbAccountKey:
-                    return new Azure.CosmosDbSecretManager(_config);
-                case SecretConfigurationBase.SecretType.EventGrid:
-                    return new Azure.EventGridSecretManager(_config);
-                case SecretConfigurationBase.SecretType.APIMManagement:
-                    return new Azure.APIMManagementSecretManager(_config);
-                case SecretConfigurationBase.SecretType.SqlServerPassword:
-                    return new Azure.SqlServerSecretManager(_config);
+                case ServiceType.StorageAccountKey:
+                    return new Azure.StorageAccountSecretManager(_config, _logger);
+                case ServiceType.CosmosDbAccountKey:
+                    return new Azure.CosmosDbSecretManager(_config, _logger);
+                case ServiceType.EventGrid:
+                    return new Azure.EventGridSecretManager(_config, _logger);
+                case ServiceType.APIMManagement:
+                    return new Azure.APIMManagementSecretManager(_config, _logger);
+                case ServiceType.SqlServerPassword:
+                    return new Azure.SqlServerSecretManager(_config, _logger);
+                case ServiceType.Unspecified:
+                    return new Azure.GenericAzureSecretManager(_config, _logger);
             }
 
             throw new InvalidOperationException($"Unable to determine provider for type:{type}");

@@ -33,10 +33,10 @@ namespace Harpocrates.SecretManagement
             {
                 //what do we do we if can't find the secret?
                 _logger?.LogWarning($"Unable to retrieve metadata for seceret {secretUri}");
-                throw new InvalidOperationException("Unable to retreive seceret metadata");
+                return;
             }
 
-            if (null == secret.Configuration)
+            if (secret.SecretType == SecretType.ManagedSystem && null == secret.Configuration)
             {
                 //what do we do if secret doesn't have config
                 _logger?.LogWarning($"Unable to retrieve configuration metadata for seceret {secretUri}");
@@ -45,6 +45,7 @@ namespace Harpocrates.SecretManagement
 
             Providers.SecretManagerFactory factory = new Providers.SecretManagerFactory(_config, _dataProvider, _logger);
             await factory.RotateSecretAsync(secret, token);
+
 
             _logger?.LogInformation($"Processed expiring seceret {secretUri}.");
         }

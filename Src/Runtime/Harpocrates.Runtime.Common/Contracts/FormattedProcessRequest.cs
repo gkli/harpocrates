@@ -10,6 +10,8 @@ namespace Harpocrates.Runtime.Common.Contracts
         {
             DoNothing,
             Rotate,
+            ScheduleDependencyUpdates,
+            PerformDependencyUpdate,
             Cleanup
         }
 

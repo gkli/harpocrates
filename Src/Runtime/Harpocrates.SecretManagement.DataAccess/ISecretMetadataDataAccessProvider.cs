@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +24,10 @@ namespace Harpocrates.SecretManagement.DataAccess
         Task<Contracts.Data.SecretConfiguration> GetConfigurationAsync(string configId, CancellationToken token);
         Task DeleteConfigurationAsync(string configId, CancellationToken token);
         Task<string> SaveConfigurationAsync(Contracts.Data.SecretConfiguration config, CancellationToken token);
+
+        Task AddSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
+        Task RemoveSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
+        Task<IEnumerable<Contracts.Data.Secret>> GetDependentSecretsAsync(string dependsOnKey, CancellationToken token);
 
     }
 }

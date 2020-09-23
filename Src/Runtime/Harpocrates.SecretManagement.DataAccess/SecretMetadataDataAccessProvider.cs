@@ -37,6 +37,10 @@ namespace Harpocrates.SecretManagement.DataAccess
 
         public async Task<string> SaveSecretAsync(Secret secret, CancellationToken token)
         { //TODO: Validate input 
+
+            if (null == secret) throw new ArgumentNullException(nameof(secret));
+            if (secret.SecretType == SecretType.ManagedSystem && null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
+
             return await OnSaveSecretAsync(secret, token);
         }
 
@@ -59,18 +63,15 @@ namespace Harpocrates.SecretManagement.DataAccess
 
         public async Task<string> SavePolicyAsync(SecretPolicy policy, CancellationToken token)
         {
-            //TODO: Validate input 
+            if (null == policy) throw new ArgumentNullException(nameof(policy));
 
             return await OnSavePolicyAsync(policy, token);
         }
-
         public async Task DeletePolicyAsync(string policyId, CancellationToken token)
         {
             //TODO: Validate input 
             await OnDeletePolicyAsync(policyId, token);
         }
-
-
 
         public async Task<SecretConfiguration> GetConfigurationAsync(string configId, CancellationToken token)
         {
@@ -86,9 +87,36 @@ namespace Harpocrates.SecretManagement.DataAccess
 
         public async Task<string> SaveConfigurationAsync(SecretConfiguration config, CancellationToken token)
         {
-            //TODO: Validate input 
+            if (null == config) throw new ArgumentNullException(nameof(config));
+            if (null == config.Policy) throw new ArgumentNullException(nameof(config.Policy));
+
             return await OnSaveConfigurationAsync(config, token);
         }
+
+        public async Task AddSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(dependsOnKey)) throw new ArgumentException($"{nameof(dependsOnKey)} cannot be empty", nameof(dependsOnKey));
+            if (string.IsNullOrWhiteSpace(dependentKey)) throw new ArgumentException($"{nameof(dependentKey)} cannot be empty", nameof(dependentKey));
+
+            await OnAddSecretDependencyAsync(dependsOnKey, dependentKey, token);
+        }
+
+        public async Task RemoveSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(dependsOnKey)) throw new ArgumentException($"{nameof(dependsOnKey)} cannot be empty", nameof(dependsOnKey));
+            if (string.IsNullOrWhiteSpace(dependentKey)) throw new ArgumentException($"{nameof(dependentKey)} cannot be empty", nameof(dependentKey));
+
+            await OnRemoveSecretDependencyAsync(dependsOnKey, dependentKey, token);
+        }
+
+        public async Task<IEnumerable<Secret>> GetDependentSecretsAsync(string dependsOnKey, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(dependsOnKey)) throw new ArgumentException($"{nameof(dependsOnKey)} cannot be empty", nameof(dependsOnKey));
+
+            return await OnGetDependentSecretsAsync(dependsOnKey, token);
+        }
+
+
 
         private string GetSecretKeyFromUri(Uri secreturi)
         {
@@ -105,5 +133,9 @@ namespace Harpocrates.SecretManagement.DataAccess
         protected abstract Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token);
         protected abstract Task OnDeleteConfigurationAsync(string configId, CancellationToken token);
         protected abstract Task<string> OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token);
+
+        protected abstract Task OnAddSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
+        protected abstract Task OnRemoveSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
+        protected abstract Task<IEnumerable<Secret>> OnGetDependentSecretsAsync(string dependsOnKey, CancellationToken token);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Harpocrates.Runtime.Common.Configuration;
 using Harpocrates.SecretManagement.Contracts.Data;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,12 +11,14 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 {
     internal class StorageAccountSecretManager : AzureSecretManager
     {
-        public StorageAccountSecretManager(Runtime.Common.Configuration.IConfigurationManager config) : base(config) { }
         private static class ValidKeyNames
         {
             public const string Key1 = "key1";
             public const string Key2 = "key2";
         }
+
+        public StorageAccountSecretManager(Runtime.Common.Configuration.IConfigurationManager config, ILogger logger) : base(config, logger) { }
+
         protected override async Task<Key> OnRotateSecretAsync(Secret secret, CancellationToken token)
         {
             Key result = new Key()

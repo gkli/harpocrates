@@ -12,6 +12,7 @@ namespace Harpocrates.SecretManagement.Providers
     {
         public string Name { get; set; }
         public string Value { get; set; }
+        public string SecretVersion { get; set; }
     }
     public interface ISecretManager
     {

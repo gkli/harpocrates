@@ -8,7 +8,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 {
     public class SecretBase
     {
-        public string Uri => GetUri();
+        public string Uri => GetUri(true);
         public string VaultName { get; set; }
         public string ObjectType { get; set; }
         public string ObjectName { get; set; }
@@ -17,6 +17,8 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string Description { get; set; }
         public string SubscriptionId { get; set; } //id of subscription that has the KeyVault instance
         public string CurrentKeyName { get; set; }
+
+        public SecretType SecretType { get; set; }
 
         //todo: allow configuring complex Secrets: ie. ConnectionString: UserId="managed-secret-123";Password="managed-secret-124"
 
@@ -83,10 +85,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         private string GetKey()
         {
-            string uri = Uri.ToString();
-
-            //todo: make sure uri has value, if not, need to constrcut uri...
-
+            string uri = GetUri(false);
 
             uri = uri.ToLower();
 
@@ -102,7 +101,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
             }
         }
 
-        private string GetUri()
+        private string GetUri(bool includeVersion)
         {
             string type = "secrets";
             switch (ObjectType.ToLower())
@@ -114,9 +113,9 @@ namespace Harpocrates.SecretManagement.Contracts.Data
                     type = "certificates";
                     break;
             }
-            string url = $"https://{VaultName}.vault.azure.net/{type}/{ObjectName}/{Version}".ToLower();
+            string url = includeVersion ? $"https://{VaultName}.vault.azure.net/{type}/{ObjectName}/{Version}" : $"https://{VaultName}.vault.azure.net/{type}/{ObjectName}";
 
-            return url;
+            return url.ToLower();
         }
     }
 }

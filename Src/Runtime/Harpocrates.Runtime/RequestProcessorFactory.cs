@@ -27,12 +27,31 @@ namespace Harpocrates.Runtime
             }
             else if (request is FormattedProcessRequest)
             {
-                Processors.IRequestProcessor<FormattedProcessRequest> processor = new Processors.SecretExpiringRequestProcessor(_config, _logger);
-               
-                //unknown request Action
-                if (null == processor) throw new InvalidOperationException();
 
-                return await processor.ProcessRequestAsync(request as FormattedProcessRequest, token);
+                FormattedProcessRequest formattedRequest = request as FormattedProcessRequest;
+
+                Processors.IRequestProcessor<FormattedProcessRequest> processor = null;
+                switch (formattedRequest.Action)
+                {
+                    case FormattedProcessRequest.RequestedAction.Rotate:
+                    case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate: //dependecy update is handled same as rotation, at least untill need to refactor...
+                        processor = new Processors.SecretExpiringRequestProcessor(_config, _logger);
+                        break;
+                    case FormattedProcessRequest.RequestedAction.Cleanup:
+                        processor = new Processors.SecretExpiredRequestProcessor(_config, _logger);
+                        break;
+                    case FormattedProcessRequest.RequestedAction.ScheduleDependencyUpdates:
+                        processor = new Processors.ScheduleDependencyUpdatesRequestProcessor(_config, _logger);
+                        break;
+                    //case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate:
+                    //    processor = new Processors.PerformDependencyUpdateRequestProcessor(_config, _logger);
+                    //    break;
+                }
+
+                //unknown request Action
+                if (null == processor) throw new InvalidOperationException($"No processor has been identified for operation of type: {formattedRequest.Action}");
+
+                return await processor.ProcessRequestAsync(formattedRequest, token);
             }
             //else if (request is SchedulingProcessRequest)
             //{
