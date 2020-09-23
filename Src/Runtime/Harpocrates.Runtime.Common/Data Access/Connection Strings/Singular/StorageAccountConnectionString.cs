@@ -84,7 +84,7 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
 
         public string ToStorageAccountFormat()
         {
-            //"DefaultEndpointsProtocol=https;AccountName=harpocrates;AccountKey=4PDtsssV6Gcl5zZmd9igruRgsU5qi5FvB1gvhV5h2Ax++Y7SymR4QES0EMlF9ftgjUB6mmnmQVfbIEI5YeFKtA==;EndpointSuffix=core.windows.net"
+            //"DefaultEndpointsProtocol=https;AccountName=name;AccountKey=*************;EndpointSuffix=core.windows.net"
 
             Uri uri = new Uri(AccountEndpoint);
 
