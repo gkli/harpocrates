@@ -1,0 +1,36 @@
+﻿<li class="nav-item" data-bind="css: {'active': isActive, 'dropdown': hasChildren}, visible:visible()">
+    <!--ko ifnot:isHeader() && hasChildren-->
+    <a class="nav-link" href="#" data-bind="css:{'nav-link-outline-light':highlight}, click:actions.select">
+        <!--ko if:icon-->
+        <i data-bind="attr:{'class': icon}"></i>&nbsp;&nbsp;<!--/ko--><span data-bind="text:text"></span>
+    </a>
+    <!--/ko-->
+    <!--ko if:isHeader() && hasChildren-->
+    <a class="dropdown-toggle nav-link actionable" data-toggle="dropdown" data-bind="css:{'nav-link-outline-light':highlight}">
+        <!--ko if:icon()-->
+        <span data-bind="attr:{'class': icon}"></span>&nbsp;<!--/ko-->
+        <!--ko if:logo()-->
+        <!--/ko-->
+        <span data-bind="text:text"></span>
+    </a>
+    <div class="dropdown-menu dropdown-with-icons" data-bind="foreach:children">
+        <!--ko ifnot:isDivider-->
+        <!--ko ifnot:action-->
+        <a class="nav-link" data-bind="attr:{href: url}">
+            <!--ko if:icon-->
+            <span data-bind="attr:{'class': icon}"></span>&nbsp;&nbsp;<!--/ko--><span data-bind="text:text"></span>
+        </a>
+        <!--/ko-->
+        <!--ko if:action-->
+        <a class="nav-link actionable" href="#" data-bind="click:action">
+            <!--ko if:icon-->
+            <span data-bind="attr:{'class': icon}"></span>&nbsp;&nbsp;<!--/ko--><span data-bind="text:text"></span>
+        </a>
+        <!--/ko-->
+        <!--/ko-->
+        <!--ko if:isDivider-->
+        <div class="dropdown-divider"></div>
+        <!--/ko-->
+    </div>
+    <!--/ko-->
+</li>

@@ -55,11 +55,9 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
         private async Task<string> GenerateDbKeyAsync(string key, ICosmosDBAccount account, CancellationToken token)
         {
-            var keys = await account.ListKeysAsync();
-
             await account.RegenerateKeyAsync(key, token);
 
-            keys = await account.ListKeysAsync();
+            var keys = await account.ListKeysAsync();
 
             if (string.Compare(key, KeyKind.Primary.Value, true) == 0) return keys.PrimaryMasterKey;
             if (string.Compare(key, KeyKind.PrimaryReadonly.Value, true) == 0) return keys.PrimaryReadonlyMasterKey;

@@ -1,0 +1,24 @@
+﻿<!--ko if:warning()-->
+<div class="alert alert-warning fade show" role="alert">
+    <a href="#" class="close" data-dismiss="alert">&times;</a>
+    <div class="form-inline">
+        <i class="material-icons text-light">warning</i>&nbsp;<h6 data-bind="text:warning" style="margin:5px;"></h6>
+    </div>
+</div>
+<!--/ko-->
+<!--ko if:error()-->
+<div class="alert alert-danger fade show" role="alert">
+    <a href="#" class="close" data-dismiss="alert">&times;</a>
+    <div class="form-inline">
+        <i class="material-icons text-light">error</i>&nbsp;<h6 data-bind="text:error" style="margin:5px;"></h6>
+    </div>
+</div>
+<!--/ko-->
+<!--ko if:success()-->
+<div class="alert alert-success fade show" role="alert">
+    <a href="#" class="close" data-dismiss="alert">&times;</a>
+    <div class="form-inline">
+        <i class="material-icons text-light">check_box</i>&nbsp;<h6 data-bind="text:success" style="margin:5px;"></h6>
+    </div>
+</div>
+<!--/ko-->

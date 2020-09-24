@@ -1,48 +1,152 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Harpocrates.Management.Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>@ViewData["Title"] - Harpocrates</title>
+
+
+    <!-- common -->
+
+    <link href="~/css/harpocrates.css" rel="stylesheet" asp-append-version="true" />
+
+    <script type="text/html" src="/templates/common/loader.html" id="template-loader">
+    </script>
+    <script type="text/html" src="/templates/common/alerts.html" id="template-alerts">
+    </script>
+    <script type="text/html" src="/templates/common/nav/sidebar.html" id="template-sidebar">
+    </script>
+    <script type="text/html" src="/templates/common/nav/menu.html" id="template-menu">
+    </script>
+    <script type="text/html" src="/templates/common/nav/menu-item.html" id="template-menu-item">
+    </script>
+    <script type="text/html" src="/templates/common/footer.html" id="template-footer">
+    </script>
+
+    <script type="text/html" src="/templates/common/dialog/confirmation.html" id="template-dialog-confirm">
+    </script>
+    <script type="text/html" src="/templates/common/dialog/wait.html" id="template-dialog-wait">
+    </script>
+    <script type="text/html" src="~/templates/common/account/profile.html" id="template-account-profile">
+    </script>
+    <!-- end common -->
 </head>
+
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Harpocrates.Management.Web</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+    
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <placeholder class="template-sidebar"></placeholder>
+        </div>
+        <div class="main-panel">
+            <placeholder class="template-menu"></placeholder>
+            <div class="content">
+                @RenderBody()
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <partial name="_CookieConsentPartial" />
+
+            <placeholder class="template-footer"></placeholder>
+            <placeholder class="template-dialog-wait"></placeholder>
+            <placeholder class="template-dialog-confirm"></placeholder>
+            <placeholder class="template-account-profile"></placeholder>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - Harpocrates.Management.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+
+    <!-- common -->
+    <script src="~/lib/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="~/lib/knockout/knockout-min.js"></script>
+
+    <script src="~/lib/material-kit/dist/js/core/popper.min.js" type="text/javascript"></script>
+    <script src="~/lib/material-kit/dist/js/plugins/bootstrap-datepicker.js" type="text/javascript"></script>
+    <script src="~/lib/material-kit/dist/js/plugins/nouislider.min.js" type="text/javascript"></script>
+
+    <script src="~/lib/material-kit/dist/js/plugins/bootstrap-notify.js" type="text/javascript"></script>
+    <script src="~/lib/material-kit/dist/js/plugins/bootstrap-switch.js" type="text/javascript"></script>
+    <script src="~/lib/material-kit/dist/js/plugins/chartist.min.js" type="text/javascript"></script>
+
+
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+
+    <script src="~/js/common/enums.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/common/common.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/common/security.js" type="text/javascript" asp-append-version="true"></script>
+
+    @*<script type="text/javascript">
+            window.Harpocrates.security.user.current.setId("@ViewData["currentUserId"]");
+            window.Harpocrates.security.user.current.setEmail("@ViewData["currentUserEmail"]");
+        </script>*@
+
+    <script src="~/js/common/entities.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/common/nav.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/common/footer.js" type="text/javascript" asp-append-version="true"></script>
+
+    <script src="~/js/api/user.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/loader/user.js" type="text/javascript" asp-append-version="true"></script>
+
+
+
+    <!-- end common -->
     @RenderSection("Scripts", required: false)
+
+    <script type="text/javascript">
+        // materialKit.initFormExtendedDatetimepickers();
+
+        // Sliders Init
+        // materialKit.initSliders();
+
+        $(function () {
+
+            window.Harpocrates.common.templates.load().done(
+                function () {
+                    $('#cookieConsent').removeClass('hide').addClass('show');
+                }
+            );
+
+            //function handleMissingProfile() {
+
+            //    var path = window.Harpocrates.common.utilities.getCurrentPath();
+            //    if (path === window.Harpocrates.common.utilities.paths.tou || path === window.Harpocrates.common.utilities.paths.privacy) {
+            //        //don't force profile creation in tou or privacy pages...
+            //        return;
+            //    }
+
+            //    //make sure templates have finished loading...
+            //    window.Harpocrates.common.templates.load().done(
+            //        function () {
+            //            //var currentUser = window.Harpocrates.security.user.current;
+            //            //var profile = new window.Harpocrates.viewModels.user.entities.profile(currentUser.getId(), currentUser.getEmail(), null, null, null);
+            //            //profile.isNewUser(true);
+            //            //profile.actions.edit();
+            //            //currentUser.setProfile(profile);
+            //        }
+            //    );
+            //}
+
+            //window.Harpocrates.loader.user.me(false, function (usr) {
+            //    if (!usr) {
+            //        handleMissingProfile();
+            //    }
+            //    else {
+            //        window.Harpocrates.security.user.current.setProfile(usr);
+            //    }
+            //}, function (err) {
+            //    if (err.status === 404) handleMissingProfile();
+            //});
+
+            //window.Harpocrates.loader.user.mytoken(function (token) {
+            //    if (token) window.Harpocrates.security.user.current.setToken(token);
+
+            //}, function (err) { });
+        });
+    </script>
 </body>
+
 </html>

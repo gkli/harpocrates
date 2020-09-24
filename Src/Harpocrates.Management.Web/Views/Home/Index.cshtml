@@ -1,8 +1,42 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<script type="text/html" src="/templates/public/home/body.html" id="template-body">
+</script>
+
+<placeholder class="template-body">
+    <div class="wait-for-templates">
+        <center>
+            <div>
+                <!--<span class="oi oi-cog icon-spin"></span>-->
+                <h2><i class="fas fa-spinner fa-pulse"></i></h2>
+            </div>
+            <div>Loading, please wait...</div>
+        </center>
+    </div>
+</placeholder>
+
+
+@section Scripts
+{
+    <script src="~/js/public/home.js" type="text/javascript" asp-append-version="true"></script>
+
+    <script type="text/javascript">
+
+        //init DateTimePickers
+        // materialKit.initFormExtendedDatetimepickers();
+
+        // Sliders Init
+        // materialKit.initSliders();
+
+        $(function () {
+            window.Harpocrates.common.templates.load().done(
+                function () {
+                    var vm = window.Harpocrates.home.createViewModel();
+                    ko.applyBindings(vm, $('div.template-body')[0]);
+                }
+            );
+        });
+    </script>
+}

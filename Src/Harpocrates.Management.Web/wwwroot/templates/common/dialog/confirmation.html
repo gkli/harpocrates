@@ -1,0 +1,38 @@
+﻿<div class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-login' role='document'>
+        <div class='modal-content'>
+
+            <div class="card card-plain">
+
+
+                <div class='modal-header'>
+                    <div class="card-header card-header-primary text-center">
+                        <h6 class='modal-title card-title' data-bind='text:caption()'></h6>
+                        <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                    </div>
+                </div>
+                <div class='modal-body'>
+                    <div class="card-body">
+                        <table class="table table-condensed">
+                            <tbody>
+                                <tr>
+                                    <td style="padding:10px;vertical-align:middle;">
+                                        <i class="fa fa-question text-warning" style="font-size:36px;"></i>
+                                    </td>
+                                    <td style="padding:10px;vertical-align:middle;" class="text-justify" data-bind="text:question"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class='modal-footer' data-bind='with:actions'>
+                    <div class="">
+                        <button class='btn btn-raised btn-primary' data-bind="click:yes.handler, text:yes.caption"></button>
+                        <button class='btn btn-raised btn-primary' data-bind="click:no.handler, text:no.caption"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
