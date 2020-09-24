@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infrastructure\Startup\" />
     <Folder Include="wwwroot\lib\material-kit\dist\" />
   </ItemGroup>
 
