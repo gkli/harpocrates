@@ -12,7 +12,8 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         CosmosDbAccountReadOnlyKey,
         SqlServerPassword,
         EventGrid,
-        APIMManagement
+        APIMManagement,
+        ServicePrincipalSecret
     }
 
     public enum SecretType

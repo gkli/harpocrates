@@ -42,6 +42,9 @@ window.Harpocrates.ui.menu = (function ($, enums, common, security, undefined) {
                 }
             };
 
+            //self.events = {
+            //    selected: function () { }
+            //};
         }
 
         var isLoggedIn = false; //security.user.isAuthenticated();

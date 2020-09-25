@@ -100,6 +100,8 @@ namespace Harpocrates.SecretManagement.Providers
                     return new Azure.SqlServerSecretManager(_config, _logger);
                 case ServiceType.Unspecified:
                     return new Azure.GenericAzureSecretManager(_config, _logger);
+                case ServiceType.ServicePrincipalSecret:
+                    return new Azure.ServicePrincipalSecretManager(_config, _logger);
             }
 
             throw new InvalidOperationException($"Unable to determine provider for type:{type}");

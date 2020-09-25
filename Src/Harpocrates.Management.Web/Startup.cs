@@ -1,8 +1,8 @@
 using System;
-using Harpocrates.Management.Web.Data;
-using Harpocrates.Management.Web.Infrastructure;
-using Harpocrates.Management.Web.Infrastructure.ApplicationUserClaims;
-using Harpocrates.Management.Web.Infrastructure.AppSettingsModels;
+//using Harpocrates.Management.Web.Data;
+//using Harpocrates.Management.Web.Infrastructure;
+//using Harpocrates.Management.Web.Infrastructure.ApplicationUserClaims;
+//using Harpocrates.Management.Web.Infrastructure.AppSettingsModels;
 using Harpocrates.Management.Web.Models.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
