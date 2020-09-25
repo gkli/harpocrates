@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Harpocrates.Runtime.Processors
 {
-    class ScheduleDependencyUpdatesRequestProcessor : RequestProcessor<FormattedProcessRequest>
+    internal abstract class SecretEventRequestProcessor : RequestProcessor<FormattedProcessRequest>
     {
-        public ScheduleDependencyUpdatesRequestProcessor(IConfigurationManager config, ILogger logger) : base(config, logger)
+        public SecretEventRequestProcessor(IConfigurationManager config, ILogger logger) : base(config, logger)
         {
         }
 
@@ -57,5 +57,6 @@ namespace Harpocrates.Runtime.Processors
 
             }
         }
+
     }
 }

@@ -93,7 +93,7 @@ namespace Harpocrates.SecretManagement.Providers
                 case ServiceType.CosmosDbAccountReadOnlyKey:
                     return new Azure.CosmosDbReadOnlySecretManager(_config, _logger);
                 case ServiceType.EventGrid:
-                    return new Azure.EventGridSecretManager(_config, _logger);
+                    return new Azure.EventGridTopicSecretManager(_config, _logger);
                 case ServiceType.APIMManagement:
                     return new Azure.APIMManagementSecretManager(_config, _logger);
                 case ServiceType.SqlServerPassword:
@@ -102,6 +102,8 @@ namespace Harpocrates.SecretManagement.Providers
                     return new Azure.GenericAzureSecretManager(_config, _logger);
                 case ServiceType.ServicePrincipalSecret:
                     return new Azure.ServicePrincipalSecretManager(_config, _logger);
+                case ServiceType.RedisCache:
+                    return new Azure.RedisCacheSecretManager(_config, _logger);
             }
 
             throw new InvalidOperationException($"Unable to determine provider for type:{type}");

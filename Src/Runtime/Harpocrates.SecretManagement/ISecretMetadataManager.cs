@@ -10,6 +10,7 @@ namespace Harpocrates.SecretManagement
     {
         Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token);
         Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token);
+        Task ProcessUpdatedSecretAsync(string secretUri, CancellationToken token);
 
         //Task<string> Get(string secretUri, CancellationToken token);
 

@@ -1,0 +1,9 @@
+Compute - AKS? Function? AppService?
+
+Storage: Storage Account? CosmosDb? SqlServer?
+
+Security: Service Principal?
+
+KeyVault: to manage own secrets if Service Principal is used
+
+KeyVault Event Subscription Creation Script

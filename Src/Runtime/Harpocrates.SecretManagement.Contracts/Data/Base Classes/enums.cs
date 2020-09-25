@@ -13,7 +13,8 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         SqlServerPassword,
         EventGrid,
         APIMManagement,
-        ServicePrincipalSecret
+        ServicePrincipalSecret,
+        RedisCache
     }
 
     public enum SecretType

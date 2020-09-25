@@ -26,7 +26,34 @@ namespace Harpocrates.SecretManagement
         public async Task ProcessExpiringSecretAsync(string secretUri, CancellationToken token)
         {
             _logger?.LogInformation($"Processing expiring seceret {secretUri}.");
-            //get secret
+
+            await ProcessSecret(secretUri, token);
+
+            _logger?.LogInformation($"Processed expiring seceret {secretUri}.");
+        }
+
+        public async Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
+        {
+            _logger?.LogInformation($"Processing expired seceret {secretUri}.");
+
+            await ProcessSecret(secretUri, token);
+
+            _logger?.LogInformation($"Processed expired seceret {secretUri}.");
+        }
+
+        public async Task ProcessUpdatedSecretAsync(string secretUri, CancellationToken token)
+        {
+            _logger?.LogInformation($"Processing updated seceret {secretUri}.");
+
+            await ProcessSecret(secretUri, token);
+
+            _logger?.LogInformation($"Processed updated seceret {secretUri}.");
+        }
+
+
+        private async Task ProcessSecret(string secretUri, CancellationToken token)
+        {
+
             var secret = await _dataProvider.GetConfiguredSecretAsync(Secret.FromKeyvaultUri(secretUri).Key, token);
 
             if (null == secret)
@@ -45,22 +72,6 @@ namespace Harpocrates.SecretManagement
 
             Providers.SecretManagerFactory factory = new Providers.SecretManagerFactory(_config, _dataProvider, _logger);
             await factory.RotateSecretAsync(secret, token);
-
-
-            _logger?.LogInformation($"Processed expiring seceret {secretUri}.");
         }
-
-        public async Task ProcessExpiredSecretAsync(string secretUri, CancellationToken token)
-        {
-            //atm, both expired and expiring events seem to warrant same treatment... 
-            //expired works better if you need shorter rotation timeframes as expired is fired once, while expiring is fired repeatedly until secret is expired
-            await ProcessExpiringSecretAsync(secretUri, token);
-            //throw new NotImplementedException();
-
-            //todo: delete secret version? mark secret version as Disabled?
-        }
-
-
-
     }
 }

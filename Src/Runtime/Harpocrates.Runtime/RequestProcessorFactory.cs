@@ -27,14 +27,13 @@ namespace Harpocrates.Runtime
             }
             else if (request is FormattedProcessRequest)
             {
-
+                //TODO: refactor Action vs Event -- current implementation a little confusing
                 FormattedProcessRequest formattedRequest = request as FormattedProcessRequest;
 
                 Processors.IRequestProcessor<FormattedProcessRequest> processor = null;
                 switch (formattedRequest.Action)
                 {
                     case FormattedProcessRequest.RequestedAction.Rotate:
-                    case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate: //dependecy update is handled same as rotation, at least untill need to refactor...
                         processor = new Processors.SecretExpiringRequestProcessor(_config, _logger);
                         break;
                     case FormattedProcessRequest.RequestedAction.Cleanup:
@@ -43,9 +42,9 @@ namespace Harpocrates.Runtime
                     case FormattedProcessRequest.RequestedAction.ScheduleDependencyUpdates:
                         processor = new Processors.ScheduleDependencyUpdatesRequestProcessor(_config, _logger);
                         break;
-                    //case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate:
-                    //    processor = new Processors.PerformDependencyUpdateRequestProcessor(_config, _logger);
-                    //    break;
+                    case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate:
+                        processor = new Processors.SecretVersionCreatedRequestProcessor(_config, _logger);
+                        break;
                 }
 
                 //unknown request Action
