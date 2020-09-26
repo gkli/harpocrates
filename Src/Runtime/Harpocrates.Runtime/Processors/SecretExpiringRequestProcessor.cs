@@ -1,4 +1,5 @@
 ﻿using Harpocrates.Runtime.Common.Contracts;
+using Harpocrates.SecretManagement;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,11 @@ namespace Harpocrates.Runtime.Processors
     {
         public SecretExpiringRequestProcessor(Common.Configuration.IConfigurationManager config, ILogger logger) : base(config, logger)
         {
+        }
+
+        protected override async Task InvokeSecretMetadataManagerMethodAsync(ISecretMetadataManager manager, FormattedProcessRequest request, CancellationToken token)
+        {
+            await manager.ProcessExpiringSecretAsync(request.ObjectUri, token);
         }
     }
 }

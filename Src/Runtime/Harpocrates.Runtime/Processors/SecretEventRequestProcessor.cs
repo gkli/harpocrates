@@ -18,45 +18,39 @@ namespace Harpocrates.Runtime.Processors
 
         protected override async Task OnProcessRequestAsync(FormattedProcessRequest request, ProcessResult result, CancellationToken token)
         {
+            SecretManagement.ISecretMetadataManager manager = new SecretManagement.SecretMetadataManager(Config, Logger);
+
             try
             {
-                SecretManagement.DataAccess.ISecretMetadataDataAccessProvider dataProvider = Config.ServiceProvider.GetRequiredService<SecretManagement.DataAccess.ISecretMetadataDataAccessProvider>();
+                await InvokeSecretMetadataManagerMethodAsync(manager, request, token);
+                //await manager.ProcessExpiringSecretAsync(request.ObjectUri, token);
 
-                string key = SecretManagement.Contracts.Data.SecretBase.FromKeyvaultUri(request.ObjectUri).Key;
-
-                //var secret = await dataProvider.GetSecretAsync(key, token);
-                //if (null != secret && secret.SecretType == SecretManagement.Contracts.Data.SecretType.Dependency)
-                //    result.Status |= ProcessResult.ProcessingStatus.Skipped; // skip scheduling dependencies for
-                //else
-                //{
-                var dependencies = await dataProvider.GetDependentSecretsAsync(key, token);
-                List<Task> workers = new List<Task>();
-                foreach (var dependency in dependencies)
+                if (null != token && token.IsCancellationRequested)
                 {
-                    FormattedProcessRequest fpr = new FormattedProcessRequest(request.OriginalMessageJson, FormattedProcessRequest.RequestedAction.PerformDependencyUpdate)
-                    {
-                        Event = request.Event,
-                        ObjectName = dependency.ObjectName,
-                        SubscriptionId = dependency.SubscriptionId,
-                        VaultName = dependency.VaultName,
-                        ObjectUri = dependency.Uri,
-                        ObjectType = FormattedProcessRequest.SecretType.Secret //todo: should this be parsed out?
-                    };
-                    workers.Add(Helpers.QueueClientHelper.CreateQueueClient(Config, Config.FormattedMessagesQueueName).SendMessageAsync(fpr.Serialize()));
+                    result.Status = ProcessResult.ProcessingStatus.Failed | ProcessResult.ProcessingStatus.Aborted;
+                    return;
                 }
-
-                Task.WaitAll(workers.ToArray());
-                // }                
-
-                result.Status |= ProcessResult.ProcessingStatus.Success;
+                else
+                    result.Status |= ProcessResult.ProcessingStatus.Success;
             }
-            catch (Exception ex) //todo: filter for specific exceptions...
+            //catch (Workers.Processors.StorageCalculator.Exceptions.SizeCalculationFailedException scfe)
+            //{
+            //    result.Status |= ProcessResult.ProcessingStatus.Failed;
+            //    result.Description = scfe.Message;
+            //}
+            //catch (Workers.Processors.StorageCalculator.Exceptions.SizeUpdatedFailedException sufe)
+            //{
+            //    result.Status |= ProcessResult.ProcessingStatus.Failed;
+            //    result.Description = sufe.Message;
+            //}
+            catch (Exception ex)
             {
                 result.Status |= ProcessResult.ProcessingStatus.Failed;
-                result.Description = ex.Message;
-
+                result.Description = $"Unexpected exception occured. Vault Name: {request.VaultName}. Object Name: {request.ObjectName}. Object Type: {request.ObjectType} Error: {ex.Message}";
             }
         }
+
+        protected abstract Task InvokeSecretMetadataManagerMethodAsync(SecretManagement.ISecretMetadataManager manager, FormattedProcessRequest request, CancellationToken token);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Harpocrates.Runtime.Common.Configuration;
 using Harpocrates.Runtime.Common.Contracts;
+using Harpocrates.SecretManagement;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace Harpocrates.Runtime.Processors
         {
         }
 
-
+        protected override async Task InvokeSecretMetadataManagerMethodAsync(ISecretMetadataManager manager, FormattedProcessRequest request, CancellationToken token)
+        {
+            await manager.ProcessExpiredSecretAsync(request.ObjectUri, token);
+        }
     }
 }

@@ -6,19 +6,12 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
 {
     public class RedisCacheConnectionString : AzureResourceConnectionString
     {
-        public enum AccountKeyType
-        {
-            None = 0,
-            AccountKey,
-            SAS
-        }
-
         private class Keys
         {
             public const string AccountEndpoint = "AccountEndpoint";
-            public const string AccountKey = "AccountKey";
-            public const string ContainerName = "Container";
-            public const string KeyType = "KeyType";
+            public const string Password = "password";
+            public const string SSL = "ssl";
+            public const string AbortConnect = "abortConnect";
         }
 
         public string AccountEndpoint
@@ -35,71 +28,69 @@ namespace Harpocrates.Runtime.Common.DataAccess.ConnectionStrings
             }
         }
 
-        public string AccountKey
+        public string Password
         {
             get
             {
-                if (Builder.TryGetValue(Keys.AccountKey, out object v)) return v as string;
+                if (Builder.TryGetValue(Keys.Password, out object v)) return v as string;
                 return string.Empty;
             }
             set
             {
-                Builder.Add(Keys.AccountKey, value);
+                Builder.Add(Keys.Password, value);
             }
         }
 
-        public string ContainerName
+        public bool Ssl
         {
             get
             {
-                if (Builder.TryGetValue(Keys.ContainerName, out object v)) return v as string;
-                return string.Empty;
+                if (Builder.TryGetValue(Keys.SSL, out object v))
+                {
+                    if (bool.TryParse(v as string, out bool b)) return b;
+                }
+                return true;
             }
             set
             {
-                Builder.Add(Keys.ContainerName, value);
+                Builder.Add(Keys.SSL, value);
             }
         }
 
-       
         public string AccountName { get { return GetAccountName(); } }
 
-        public AccountKeyType KeyType
+        public bool AbortConnect
         {
             get
             {
-                if (Builder.TryGetValue(Keys.KeyType, out object v))
+                if (Builder.TryGetValue(Keys.AbortConnect, out object v))
                 {
-                    if (Enum.TryParse<AccountKeyType>(v as string, out AccountKeyType result)) return result;
-                    else return AccountKeyType.None;
-
+                    if (bool.TryParse(v as string, out bool b)) return b;
                 };
-                return AccountKeyType.None;
+                return false;
             }
             set
             {
-                Builder.Add(Keys.KeyType, value);
+                Builder.Add(Keys.AbortConnect, value);
             }
         }
 
-        public string ToStorageAccountFormat()
+        public string ToRedisFormat()
         {
-            //"DefaultEndpointsProtocol=https;AccountName=name;AccountKey=*************;EndpointSuffix=core.windows.net"
+            //harpocrates-redis.redis.cache.windows.net:6380,password=******,ssl=True,abortConnect=False
 
-            Uri uri = new Uri(AccountEndpoint);
-
-            int firstDotIdx = uri.Host.IndexOf(".");
-            string accountName = uri.Host.Substring(0, firstDotIdx);
-            string suffix = uri.Host.Substring(firstDotIdx + 1, uri.Host.Length - firstDotIdx - 1);
-
-            return $"DefaultEndpointsProtocol={uri.Scheme};AccountName={accountName};AccountKey={AccountKey};EndpointSuffix={suffix}";
+            return $"{AccountEndpoint},password={Password},ssl={Ssl},abortConnect={AbortConnect}";
         }
 
         private string GetAccountName()
         {
             Uri uri = new Uri(AccountEndpoint);
-            int firstDotIdx = uri.Host.IndexOf(".");
-            return uri.Host.Substring(0, firstDotIdx);
+
+            string host = uri.Host;
+            if (string.IsNullOrWhiteSpace(host)) host = uri.OriginalString;
+
+            int firstDotIdx = host.IndexOf(".");
+            return host.Substring(0, firstDotIdx);
         }
 
     }

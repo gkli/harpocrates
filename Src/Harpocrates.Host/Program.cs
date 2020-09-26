@@ -15,6 +15,7 @@ namespace Harpocrates.Host
 
         static void Main(string[] args)
         {
+            string appInsightsKey = "";
 
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration((context, config) =>
@@ -25,7 +26,10 @@ namespace Harpocrates.Host
                   .AddCommandLine(args)
                   .Build();
 
+                appInsightsKey = builtConfig["ApplicationInsights:InstrumentationKey"];
+
                 ManagedIdentityKeyVaultConfig cfg = new ManagedIdentityKeyVaultConfig(builtConfig["KVConfig:KeyVaultName"]);
+
 
                 ConfigurationOptions options = new ConfigurationOptions();
                 options.DefaultConfig = cfg;
@@ -36,8 +40,8 @@ namespace Harpocrates.Host
 
             }).ConfigureServices((context, services) =>
             {
-
-                services.AddLogging(configure => configure.AddConsole().AddApplicationInsights())
+                //todo: read from config
+                services.AddLogging(configure => configure.AddConsole().AddApplicationInsights(appInsightsKey))
                     //.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Information)
                     .AddSingleton<IConfiguration>(context.Configuration)
                     .AddSingleton<Runtime.Common.Configuration.IConfigurationManager, HostConfigurationManager>()

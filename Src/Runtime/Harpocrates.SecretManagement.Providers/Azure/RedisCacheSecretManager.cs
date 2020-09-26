@@ -49,7 +49,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
             var azure = GetAzureEnvironment();
 
-            string accountId = $"/subscriptions/{secret.Configuration.SubscriptionId}/resourceGroups/{sacs.ResourceGroup}/providers/Microsoft.Storage/storageAccounts/{sacs.AccountName}";
+            string accountId = $"/subscriptions/{secret.Configuration.SubscriptionId}/resourceGroups/{sacs.ResourceGroup}/providers/Microsoft.Cache/Redis/{sacs.AccountName}";
 
             var account = await azure.RedisCaches.GetByIdAsync(accountId, token);
 

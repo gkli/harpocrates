@@ -153,6 +153,18 @@ namespace Harpocrates.Runtime
                 Policy = policies[Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216")]
             });
 
+            id = Guid.Parse("DC40A993-2C44-4B48-96F5-7A98CC1F9A59");
+            configs.Add(id, new SecretManagement.Contracts.Data.SecretConfiguration()
+            {
+                ConfigurationId = id,
+                Name = "redis cache",
+                Description = "harpocrates redis REDIS Cache service",
+                ServiceType = SecretManagement.Contracts.Data.ServiceType.RedisCache,
+                SourceConnectionString = "AccountEndpoint=harpocrates-redis.redis.cache.windows.net:6380;ResourceGroup=harpocrates;",
+                SubscriptionId = subscriptionId,
+                Policy = policies[Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216")]
+            });
+
             foreach (var config in configs.Values)
             {
                 await dataProvider.SaveConfigurationAsync(config, token);
@@ -168,7 +180,8 @@ namespace Harpocrates.Runtime
                          "https://harpocrates-test1.vault.azure.net/secrets/cosmosDb-master-key/b053d0f8e7ec4d9b954f87bee16a02f6",              //5
                          "https://harpocrates-test1.vault.azure.net/secrets/cosmosDb-readonly0key/e7067013110a45cfa38871f26d9cbcd6",            //6
                          "https://harpocrates-test2.vault.azure.net/secrets/Esri-Db-MasterConnectionString/cc5b3bad3ac1481e9ed63cdb9a6cc95d",   //7
-                         "https://harpocrates-test2.vault.azure.net/secrets/Esri-Db-ReadOnlyConnectionString/dea4ba396bcb49baa926227f79f9cc92"};//8    
+                         "https://harpocrates-test2.vault.azure.net/secrets/Esri-Db-ReadOnlyConnectionString/dea4ba396bcb49baa926227f79f9cc92", //8
+                         "https://harpocrates-test1.vault.azure.net/secrets/redis-MasterKey/68621ef295514c7fb69f052b9bb0678e"};                 //9    
 
             List<SecretManagement.Contracts.Data.Secret> secrets = new List<SecretManagement.Contracts.Data.Secret>();
 
@@ -308,6 +321,21 @@ namespace Harpocrates.Runtime
                 Description = "ComsoDb account read-only connection string for esri-db app",
                 FormatExpression = $"AccountEndpoint=https://esri-poc-db.documents.azure.com:443/;AccountKey={{{{{secrets[6].Key}}}}};",
                 SecretType = SecretManagement.Contracts.Data.SecretType.Dependency
+            });
+
+            sb = SecretManagement.Contracts.Data.Secret.FromKeyvaultUri(urls[9]);
+            secrets.Add(new SecretManagement.Contracts.Data.Secret()
+            {
+                ObjectName = sb.ObjectName,
+                ObjectType = sb.ObjectType,
+                VaultName = sb.VaultName,
+                Version = sb.Version,
+                SubscriptionId = subscriptionId,
+                Name = "Sample REDIS",
+                Description = "REDIS Cache account",
+                FormatExpression = null,
+                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                Configuration = configs[Guid.Parse("DC40A993-2C44-4B48-96F5-7A98CC1F9A59")]
             });
 
             #endregion
