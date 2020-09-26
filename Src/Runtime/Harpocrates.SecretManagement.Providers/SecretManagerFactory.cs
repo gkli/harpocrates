@@ -25,7 +25,7 @@ namespace Harpocrates.SecretManagement.Providers
         {
             if (null == secret) throw new ArgumentNullException(nameof(secret));
 
-            if (secret.SecretType == SecretType.ManagedSystem)
+            if (secret.SecretType == SecretType.Attached)
             {
                 if (null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
                 if (null == secret.Configuration.Policy) throw new ArgumentException(nameof(secret.Configuration.Policy));
@@ -100,8 +100,8 @@ namespace Harpocrates.SecretManagement.Providers
                     return new Azure.SqlServerSecretManager(_config, _logger);
                 case ServiceType.Unspecified:
                     return new Azure.GenericAzureSecretManager(_config, _logger);
-                case ServiceType.ServicePrincipalSecret:
-                    return new Azure.ServicePrincipalSecretManager(_config, _logger);
+                case ServiceType.AppRegistrationPassword:
+                    return new Azure.AppRegistrationPasswordSecretManager(_config, _logger);
                 case ServiceType.RedisCache:
                     return new Azure.RedisCacheSecretManager(_config, _logger);
             }

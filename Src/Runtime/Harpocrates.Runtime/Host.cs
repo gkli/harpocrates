@@ -199,7 +199,7 @@ namespace Harpocrates.Runtime
                 Name = "harpocratestest2-key",
                 Description = "Harpocratestest2 storage account access key",
                 FormatExpression = null,
-                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                SecretType = SecretManagement.Contracts.Data.SecretType.Attached,
                 Configuration = configs[Guid.Parse("5f72a920-040a-4750-8974-d29629bbe20f")]
             });
 
@@ -216,7 +216,7 @@ namespace Harpocrates.Runtime
                 Name = "harpocratestest1-key",
                 Description = "Harpocratestest1 storage account access key",
                 FormatExpression = null,
-                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                SecretType = SecretManagement.Contracts.Data.SecretType.Attached,
                 Configuration = configs[Guid.Parse("5c09346e-bd0a-4a6b-b26d-c89b5111cae3")]
             });
 
@@ -274,7 +274,7 @@ namespace Harpocrates.Runtime
                 SubscriptionId = subscriptionId,
                 Name = "CosmosDb Master Key",
                 Description = "ComsosDb Account Master Key",
-                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                SecretType = SecretManagement.Contracts.Data.SecretType.Attached,
                 FormatExpression = null,
                 Configuration = configs[Guid.Parse("DFA55385-9ADB-4AF4-BCBA-990E129A3D46")]
             });
@@ -289,7 +289,7 @@ namespace Harpocrates.Runtime
                 SubscriptionId = subscriptionId,
                 Name = "CosmosDb Readonly Key",
                 Description = "ComsosDb Account Read-Only Key",
-                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                SecretType = SecretManagement.Contracts.Data.SecretType.Attached,
                 FormatExpression = null,
                 Configuration = configs[Guid.Parse("F43A49AC-C8B9-46D3-9DE3-5E552634F953")]
             });
@@ -334,7 +334,7 @@ namespace Harpocrates.Runtime
                 Name = "Sample REDIS",
                 Description = "REDIS Cache account",
                 FormatExpression = null,
-                SecretType = SecretManagement.Contracts.Data.SecretType.ManagedSystem,
+                SecretType = SecretManagement.Contracts.Data.SecretType.Attached,
                 Configuration = configs[Guid.Parse("DC40A993-2C44-4B48-96F5-7A98CC1F9A59")]
             });
 

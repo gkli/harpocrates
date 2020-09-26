@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static Microsoft.Azure.Management.Fluent.Azure;
 
 namespace Harpocrates.SecretManagement.Providers.Azure
 {
@@ -95,22 +96,15 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
         protected IAzure GetAzureEnvironment()
         {
-            //if (null != _azure) return _azure;
-
-            //lock (_lock)
-            //{
-            //    if (null == _azure)
-            //    {
-            //todo: May not want to carry this arround as things could run in different subscriptions? -- should we be deployed to single subscription or
-            //manage accross subscriptions?
+            var azure = GetAzureAuthenticated().WithDefaultSubscription();
 
 
-            //todo: this may differ depending on hosting scenario, if so, would need to move to Configuration...
-            //var credentials = SdkContext.AzureCredentialsFactory.FromFile(Environment.GetEnvironmentVariable("AZURE_AUTH_LOCATION"));
+            return azure;
+        }
 
+        protected IAuthenticated GetAzureAuthenticated()
+        {
 
-
-            //ADD: environment details to Config
             var envSp = Config.EnvironmentServicePrincipalConnectionString;
 
             AzureEnvironment azureEnvironment = AzureEnvironment.AzureGlobalCloud;
@@ -132,14 +126,11 @@ namespace Harpocrates.SecretManagement.Providers.Azure
             //var credentials = SdkContext.AzureCredentialsFactory.FromSystemAssignedManagedServiceIdentity(Microsoft.Azure.Management.ResourceManager.Fluent.Authentication.MSIResourceType.VirtualMachine, null);
 
 
-            var azure = Microsoft.Azure.Management.Fluent.Azure.Configure()
+            var authenticated = Microsoft.Azure.Management.Fluent.Azure.Configure()
                             .WithLogLevel(HttpLoggingDelegatingHandler.Level.Basic)
-                            .Authenticate(credentials)
-                            .WithDefaultSubscription();
-            //    }
-            //}
+                            .Authenticate(credentials);
 
-            return azure;
+            return authenticated;
         }
 
         /// <summary>

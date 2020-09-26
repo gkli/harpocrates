@@ -13,13 +13,20 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         SqlServerPassword,
         EventGrid,
         APIMManagement,
-        ServicePrincipalSecret,
+        AppRegistrationPassword,
+        // AppRegistrationCertificate ???
         RedisCache
     }
 
     public enum SecretType
     {
-        ManagedSystem,
+        /// <summary>
+        /// Secret that is 'attached' to a service that is managed by the application
+        /// </summary>
+        Attached,
+        /// <summary>
+        /// Secret that is not directly related to an 'attached' secret, but is related to other managed secret(s)
+        /// </summary>
         Dependency
     }
 }

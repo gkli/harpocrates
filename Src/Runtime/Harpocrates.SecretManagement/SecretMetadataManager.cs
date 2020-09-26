@@ -63,7 +63,7 @@ namespace Harpocrates.SecretManagement
                 return;
             }
 
-            if (secret.SecretType == SecretType.ManagedSystem && null == secret.Configuration)
+            if (secret.SecretType == SecretType.Attached && null == secret.Configuration)
             {
                 //what do we do if secret doesn't have config
                 _logger?.LogWarning($"Unable to retrieve configuration metadata for seceret {secretUri}");

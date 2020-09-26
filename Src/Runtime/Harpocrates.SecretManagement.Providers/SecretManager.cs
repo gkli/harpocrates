@@ -17,13 +17,13 @@ namespace Harpocrates.SecretManagement.Providers
         public async Task<Key> RotateSecretAsync(Contracts.Data.Secret secret, CancellationToken token)
         {
             if (null == secret) throw new ArgumentNullException(nameof(secret));
-            if (secret.SecretType == Contracts.Data.SecretType.ManagedSystem)
+            if (secret.SecretType == Contracts.Data.SecretType.Attached)
             {
                 if (null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
                 if (null == secret.Configuration.Policy) throw new ArgumentException(nameof(secret.Configuration.Policy));
             }
             Key result = null;
-            if (secret.SecretType == Contracts.Data.SecretType.ManagedSystem)
+            if (secret.SecretType == Contracts.Data.SecretType.Attached)
                 result = await OnRotateSecretAsync(secret, token);
             else
                 result = new Key() { };

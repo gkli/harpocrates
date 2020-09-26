@@ -39,7 +39,7 @@ namespace Harpocrates.SecretManagement.DataAccess
         { //TODO: Validate input 
 
             if (null == secret) throw new ArgumentNullException(nameof(secret));
-            if (secret.SecretType == SecretType.ManagedSystem && null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
+            if (secret.SecretType == SecretType.Attached && null == secret.Configuration) throw new ArgumentNullException(nameof(secret.Configuration));
 
             return await OnSaveSecretAsync(secret, token);
         }
