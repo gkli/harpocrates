@@ -74,8 +74,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
         private string GenerateStrongPassword()
         {
-            //TODO: Generate Random Password here
-            return "My Super Weak Not So Random Password";
+            return Runtime.Common.Utilities.PasswordGenerator.GeneratePassword(32);
         }
     }
 }
