@@ -1,0 +1,16 @@
+﻿<!--ko if: items().length > 1-->
+<div class="pagination-container">
+    <ul class="pagination pagination-sm">
+
+        <li class="page-item" data-bind="css:{'disabled': !actions.first.can()}"><a href="javascript:void(0);" class="page-link" data-bind="click:actions.first.go, enabled: actions.first.can"><i class="fa fa-angle-double-left"></i></a></li>
+        <li class="page-item" data-bind="css:{'disabled': !actions.previous.can()}"><a href="javascript:void(0);" class="page-link" data-bind="click:actions.previous.go, enabled: actions.previous.can"><i class="fa fa-angle-left"></i></a></li>
+
+        <!--ko foreach:items-->
+        <li class="page-item" data-bind="css:{'active': $parent.selected() === $data}"><a href="javascript:void(0);" class="page-link" data-bind="text:($index()+1), click:$parent.actions.goto.bind(this, $index())">1</a></li>
+        <!--/ko-->
+
+        <li class="page-item" data-bind="css:{'disabled': !actions.next.can()}"><a href="javascript:void(0);" class="page-link" data-bind="click:actions.next.go, enabled: actions.next.can"><i class="fa fa-angle-right"></i></a></li>
+        <li class="page-item" data-bind="css:{'disabled': !actions.last.can()}"><a href="javascript:void(0);" class="page-link" data-bind="click:actions.last.go, enabled: actions.last.can"><i class="fa fa-angle-double-right"></i></a></li>
+    </ul>
+</div>
+<!--/ko-->

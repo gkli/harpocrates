@@ -8,7 +8,7 @@ window.Harpocrates.api.service = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/service',
+                url: '/api/services',
                 type: "GET"
             });
 
@@ -32,7 +32,7 @@ window.Harpocrates.api.service = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/service/' + serviceId,
+                url: '/api/services/' + serviceId,
                 type: "GET"
             });
 
@@ -55,7 +55,7 @@ window.Harpocrates.api.service = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/service',
+                url: '/api/services',
                 type: "POST"
             });
 
@@ -76,7 +76,7 @@ window.Harpocrates.api.service = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/service/' + serviceId,
+                url: '/api/services/' + serviceId,
                 type: "DELETE"
             });
 

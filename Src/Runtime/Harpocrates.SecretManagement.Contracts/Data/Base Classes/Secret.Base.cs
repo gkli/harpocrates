@@ -17,7 +17,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string Description { get; set; }
         public string SubscriptionId { get; set; } //id of subscription that has the KeyVault instance
         public string CurrentKeyName { get; set; }
-
+        public DateTime? LastRotatedOn { get; set; }
         public SecretType SecretType { get; set; }
 
         //todo: allow configuring complex Secrets: ie. ConnectionString: UserId="managed-secret-123";Password="managed-secret-124"

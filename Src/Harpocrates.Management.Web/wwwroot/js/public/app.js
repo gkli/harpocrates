@@ -11,7 +11,9 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 self.template = ko.observable(template);
                 self.name = ko.observable(name);
 
-                self.data = new data.common.entities.collection();;
+                self.data = new data.common.entities.collection();
+
+                self.paginated = new data.common.entities.paginatedCollection(10);
 
                 self.actions = {
                     select: function () {
@@ -22,7 +24,7 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                     },
                     refresh: function () {
                         if (load) {
-
+                            self.data.loading(true);
                             self.data.items.removeAll();
 
                             load(function (data) {
@@ -32,9 +34,13 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                                     self.data.items.push(data[i]);
                                 }
 
+                                self.paginated.helper.paginate(self.data);
+
+                                self.data.loading(false);
 
                             }, function (err) {
                                 console.log("Error: " + err.statusText);
+                                self.data.loading(false);
                             });
                         }
                     }

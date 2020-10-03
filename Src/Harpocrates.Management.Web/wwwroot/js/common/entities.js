@@ -139,7 +139,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                     for (var i = 0; i < collection.items().length; i++) {
 
                         if (null === page) {
-                            page = new _common.collection("page");
+                            page = new _common.collection("page " + i);
                             self.items.push(page);
                         }
 
@@ -268,27 +268,220 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
     };
 
     var _metaData = {
-        policy: function (id, name, description, interval) {
+        policy: function (id, name, description, seconds) {
             var self = this;
 
             self.id = ko.observable(id);
             self.name = ko.observable(name);
             self.description = ko.observable(description);
-            self.interval = ko.observable(interval);
+            self.intervalInSeconds = ko.observable(seconds);
+
+            self.interval = ko.pureComputed(function () {
+                var days = 0, hours = 0, minutes = 0, seconds = self.intervalInSeconds();
+
+                if (seconds > 59) {
+                    minutes = Math.floor(seconds / 60);
+                    seconds -= minutes * 60;
+                    if (minutes > 59) {
+                        hours = Math.floor(minutes / 60);
+                        minutes -= hours * 60;
+                        if (hours > 23) {
+                            days = Math.floor(hours / 24);
+                            hours -= days * 24;
+                        }
+                    }
+                }
+
+                return days + "." + hours.pad(2) + ":" + minutes.pad(2) + ":" + seconds.pad(2);
+            });
         },
-        service: function (id, name, description, type) { },
-        secret: function (id, name) { }
+        service: function (id, name, description, type, subId, srcConnString, policy) {
+            var self = this;
+
+            self.id = ko.observable(id);
+            self.name = ko.observable(name);
+            self.description = ko.observable(description);
+            self.type = ko.observable(type);
+            self.policy = ko.observable(policy);
+            self.subscriptionId = ko.observable(subId);
+            self.sourceConnectionString = ko.observable(srcConnString);
+
+        },
+        secret: function (key, uri, vault, objectType, objectName, type, name, description, subscriptionId, formatExpression, currentKeyName, lastRotated, service) {
+            var self = this;
+
+            self.id = ko.observable(key);
+            self.uri = ko.observable(uri);
+            self.vaultName = ko.observable(vault);
+            self.objectType = ko.observable(objectType);
+            self.objectName = ko.observable(objectName);
+            self.subscriptionId = ko.observable(subscriptionId);
+            self.formatExpression = ko.observable(formatExpression);
+            self.currentKeyName = ko.observable(currentKeyName);
+            self.lastRotatedOn = ko.observable(lastRotated);
+
+            self.type = ko.observable(type);
+            self.service = ko.observable(service);
+
+            self.name = ko.observable(name);
+            self.description = ko.observable(description);
+
+            self.serviceNameText = ko.pureComputed(function () {
+                if (!self.service()) return "N/A";
+
+                return self.service().name();
+            });
+
+            self.serviceTypeText = ko.pureComputed(function () {
+                if (!self.service()) return "N/A";
+
+                return self.service().type().name();
+            });
+
+            self.lastRotatedOnText = ko.pureComputed(function () {
+                if (!self.lastRotatedOn()) return "Never";
+
+                //todo: format date
+                return self.lastRotatedOn();
+            });
+            self.rotationOverdue = ko.pureComputed(function () {
+                if (self.type() && self.type().type() === enums.secretType.dependency) return false;
+
+                if (!self.lastRotatedOn()) return false;
+                if (!self.service()) return false;
+
+                //todo: parse out lastRotatedOn to determine if we're exceeding scheduled rotation
+
+                return true;
+            });
+
+
+        },
+        serviceType: function (type) {
+            var self = this;
+
+            self.type = ko.observable(type);
+            self.name = ko.pureComputed(function () {
+                switch (self.type()) {
+                    case enums.serviceType.unspecified:
+                        return "Unspecified";
+                    case enums.serviceType.storageAccountKey:
+                        return "Storage Account Key";
+                    case enums.serviceType.cosmosDbAccountKey:
+                        return "CosmosDb Master Key";
+                    case enums.serviceType.cosmosDbAccountReadOnlyKey:
+                        return "CosmosDb Read-Only Key";
+                    case enums.serviceType.sqlServerPassword:
+                        return "SQL Server Password";
+                    case enums.serviceType.eventGrid:
+                        return "Event Grid";
+                    case enums.serviceType.apimManagement:
+                        return "APIM Management Key";
+                    case enums.serviceType.appRegistrationPassword:
+                        return "Service Principal";
+                    case enums.serviceType.redisCache:
+                        return "REDIS Cache";
+                }
+
+                return "Unknown";
+            });
+
+        },
+        secretType: function (type) {
+            var self = this;
+
+            self.type = ko.observable(type);
+            self.name = ko.pureComputed(function () {
+                switch (self.type()) {
+                    case enums.secretType.attached:
+                        return "attached";
+                    case enums.secretType.dependency:
+                        return "dependency";
+                }
+
+                return "Unknown";
+            });
+        }
     };
 
     var _metaDataConverter = {
         policyContractToVm: function (contract) {
             if (!contract) return null;
 
-            return new _metaData.policy(contract.policyId, contract.name, contract.description, contract.rotationInterval);
+            return new _metaData.policy(contract.policyId, contract.name, contract.description, contract.rotationInterval.totalSeconds);
         },
-        policyVmToData: function (vm) { }
+        policyVmToContract: function (vm) { },
+
+        serviceContractToVm: function (contract) {
+            if (!contract) return null;
+
+            return new _metaData.service(contract.configurationId
+                , contract.name
+                , contract.description
+                , _masterData.metaData.serviceTypes.find(contract.serviceType)
+                , contract.subscriptionId
+                , contract.sourceConnectionString
+                , _metaDataConverter.policyContractToVm(contract.policy));
+        },
+        serviceVmToContract: function (vm) { },
+
+        secretContractToVm: function (contract) {
+            if (!contract) return null;
+            return new _metaData.secret(contract.key
+                , contract.uri
+                , contract.vaultName
+                , contract.objectType
+                , contract.objectName
+                , _masterData.metaData.secretTypes.find(contract.secretType)
+                , contract.name
+                , contract.description
+                , contract.subscriptionId
+                , contract.formatExpression
+                , contract.currentKeyName
+                , contract.lastRotated
+                , _metaDataConverter.serviceContractToVm(contract.configuration));
+
+        },
+        secretVmToContract: function (vm) { }
     };
 
+    var _masterData = {
+        metaData: {
+            serviceTypes: new _common.collection("service types"),
+            secretTypes: new _common.collection("secret types")
+        }
+    };
+
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.unspecified));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.storageAccountKey));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.cosmosDbAccountKey));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.cosmosDbAccountReadOnlyKey));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.sqlServerPassword));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.eventGrid));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.apimManagement));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.appRegistrationPassword));
+    _masterData.metaData.serviceTypes.items.push(new _metaData.serviceType(enums.serviceType.redisCache));
+
+    _masterData.metaData.serviceTypes.selected(_masterData.metaData.serviceTypes.items()[0]);
+
+    _masterData.metaData.secretTypes.items.push(new _metaData.secretType(enums.secretType.attached));
+    _masterData.metaData.secretTypes.items.push(new _metaData.secretType(enums.secretType.dependency));
+
+    _masterData.metaData.secretTypes.selected(_masterData.metaData.secretTypes.items()[0]);
+
+    _masterData.metaData.serviceTypes.find = function (type) {
+        for (var i = 0; i < _masterData.metaData.serviceTypes.items().length; i++) {
+            if (_masterData.metaData.serviceTypes.items()[i].type() === type) return _masterData.metaData.serviceTypes.items()[i];
+        }
+        return null;
+    }
+
+    _masterData.metaData.secretTypes.find = function (type) {
+        for (var i = 0; i < _masterData.metaData.secretTypes.items().length; i++) {
+            if (_masterData.metaData.secretTypes.items()[i].type() === type) return _masterData.metaData.secretTypes.items()[i];
+        }
+        return null;
+    }
 
 
     function vmItem(entities, converter) {
@@ -300,7 +493,8 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
     return {
         //financial: new vmItem(_financial, _financialConverter)
         common: new vmItem(_common, null),
-        metadata: new vmItem(_metaData, _metaDataConverter)
+        metadata: new vmItem(_metaData, _metaDataConverter),
+        masterData: _masterData
     };
 
 })(window.Harpocrates.enums, window.Harpocrates.common);

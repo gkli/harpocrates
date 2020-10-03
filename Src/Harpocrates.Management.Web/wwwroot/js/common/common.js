@@ -1,4 +1,10 @@
-﻿window.Harpocrates = window.Harpocrates || {};
+﻿Number.prototype.pad = function (size) {
+    var s = String(this);
+    while (s.length < (size || 2)) { s = "0" + s; }
+    return s;
+}
+
+window.Harpocrates = window.Harpocrates || {};
 window.Harpocrates.common = (function ($, undefined) {
 
     function _loader(onload) {

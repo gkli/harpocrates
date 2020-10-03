@@ -3,7 +3,7 @@ window.Harpocrates.loader = window.Harpocrates.loader || {};
 
 window.Harpocrates.loader.secret = (function (enums, common, data, api, undefined) {
 
-    function _getSecrets() {
+    function _getSecrets(oncomplete, onerror) {
 
         var loader = api.secret.getAll();
         if (!loader) {
@@ -14,7 +14,16 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         loader = loader.load();
 
         loader.done(function (secrets) {
-            if (oncomplete) oncomplete(secrets);
+            if (oncomplete) {
+                var vms = [];
+                if (secrets) {
+                    for (var i = 0; i < secrets.length; i++) {
+                        var secret = data.metadata.converter.secretContractToVm(secrets[i]);
+                        if (secret) vms.push(secret);
+                    }
+                }
+                oncomplete(vms);
+            }
         });
 
         loader.fail(function (err) {
@@ -22,7 +31,7 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         });
     }
 
-    function _getSecret(secretId) {
+    function _getSecret(secretId, oncomplete, onerror) {
 
         var loader = api.secret.get(secretId);
         if (!loader) {
@@ -33,7 +42,7 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         loader = loader.load();
 
         loader.done(function (secret) {
-            if (oncomplete) oncomplete(secret);
+            if (oncomplete) oncomplete(data.metadata.converter.secretContractToVm(secret));
         });
 
         loader.fail(function (err) {
@@ -41,7 +50,7 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         });
     }
 
-    function _saveSecret(secret) {
+    function _saveSecret(secret, oncomplete, onerror) {
 
         var loader = api.secret.save(secret);
         if (!loader) {
@@ -60,7 +69,7 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         });
     }
 
-    function _deleteSecret(secretId) {
+    function _deleteSecret(secretId, oncomplete, onerror) {
         var loader = api.secret.delete(secretId);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });

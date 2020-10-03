@@ -8,7 +8,7 @@ window.Harpocrates.api.secret = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secret',
+                url: '/api/secrets',
                 type: "GET"
             });
 
@@ -32,7 +32,7 @@ window.Harpocrates.api.secret = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secret/' + secretId,
+                url: '/api/secrets/' + secretId,
                 type: "GET"
             });
 
@@ -55,7 +55,7 @@ window.Harpocrates.api.secret = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secret',
+                url: '/api/secrets',
                 type: "POST"
             });
 
@@ -76,7 +76,7 @@ window.Harpocrates.api.secret = (function (enums, common, undefined) {
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secret/' + secretId,
+                url: '/api/secrets/' + secretId,
                 type: "DELETE"
             });
 

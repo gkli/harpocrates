@@ -3,11 +3,18 @@
 
     <div class="card strpied-tabled-with-hover">
         <div class="card-header ">
-            <h4 class="card-title">Policy Editor</h4>
-            <p class="card-category">Here is a subtitle for this table</p>
+            <h4 class="card-title">Policies &nbsp;&nbsp;<span class="text-info actionable" data-bind="click:actions.refresh"><i class="fa fa-sync-alt"></i></span></h4>
+            <!--<p class="card-category">Here is a subtitle for this table</p>-->
         </div>
-        <div class="card-body table-full-width table-responsive">
-            <table class="table table-hover table-striped">
+
+        <!--ko if: data.loading-->
+        <div class="card-body text-center text-info">
+            <!--ko template:'template-loader'--><!--/ko-->
+        </div>
+        <!--/ko-->
+        <!--ko ifnot:data.loading-->
+        <div class="card-body table-full-width table-responsive" data-bind="with:paginated">
+            <table class="table table-hover table-striped" data-bind="with:selected">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -15,19 +22,21 @@
                         <th><i class="material-icons">add</i></th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: data.items">
+                <tbody data-bind="foreach: items">
                     <tr>
-                        <td data-bind="text:name">15-Day Rotation</td>
-                        <td data-bind="text:interval">15.00:00:00</td>
+                        <td data-bind="text:name"> </td>
+                        <td data-bind="text:interval"> </td>
                         <td>
-                            <i class="material-icons">edit</i>
-                            <i class="material-icons text-danger">delete</i>
+                            <i class="fa fa-edit"></i>
+                            <i class="fa fa-trash"></i>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <div class="float-right" data-bind="template:'template-controls-pagination-pager'">
+            </div>
         </div>
-
+        <!--/ko-->
         <div class="card-footer">
             SAVE / CANCEL
         </div>

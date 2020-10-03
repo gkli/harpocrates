@@ -69,7 +69,8 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                     FormatExpression = sb.FormatExpression,
                     Name = sb.Name,
                     SubscriptionId = sb.SubscriptionId,
-                    SecretType = sb.SecretType
+                    SecretType = sb.SecretType,
+                    LastRotatedOn = sb.LastRotatedOn
                 };
 
             }
@@ -88,12 +89,64 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             return s;
         }
 
+        protected override async Task<IEnumerable<Secret>> OnGetConfiguredSecretsAsync(CancellationToken token)
+        {
+            return await GetObjectsAsync<Secret>(_rootContainer, $"{StorageFolders.Secret}/", GetConfiguredSecretAsync, token);
+        }
+
         protected async override Task<SecretPolicy> OnGetPolicyAsync(string policyId, CancellationToken token)
         {
             string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Policy, policyId), token);
             if (string.IsNullOrWhiteSpace(json)) return null;
 
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Policy>(json);
+        }
+
+        protected override async Task<IEnumerable<SecretPolicy>> OnGetPoliciesAsync(CancellationToken token)
+        {
+
+            return await GetObjectsAsync<SecretPolicy>(_rootContainer, $"{StorageFolders.Policy}/", GetPolicyAsync, token);
+
+            //List<Task<SecretPolicy>> workers = new List<Task<SecretPolicy>>();
+
+            ////List<string> list = new List<string>();
+
+            //string continuationToken = null;
+            //List<SecretPolicy> policies = new List<SecretPolicy>();
+
+            //do
+            //{
+            //    try
+            //    {
+            //        var resultSegment = _rootContainer.GetBlobs(prefix: $"{StorageFolders.Policy}/").AsPages(continuationToken, 50);
+
+            //        foreach (Azure.Page<BlobItem> blobPage in resultSegment)
+            //        {
+
+            //            foreach (BlobItem blobItem in blobPage.Values)
+            //            {
+            //                string policyId = System.IO.Path.GetFileNameWithoutExtension(blobItem.Name);
+
+            //                //schedule work to be done here
+            //                workers.Add(GetPolicyAsync(policyId, token));
+            //            }
+            //            continuationToken = blobPage.ContinuationToken;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        throw;
+            //    }
+            //} while (false == string.IsNullOrWhiteSpace(continuationToken));
+
+            //Task.WaitAll(workers.ToArray(), token);
+
+            //foreach (var t in workers)
+            //{
+            //    policies.Add(t.Result);
+            //}
+
+            //return policies.AsReadOnly();
         }
 
         protected async override Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token)
@@ -117,6 +170,10 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             return result;
         }
 
+        protected override async Task<IEnumerable<SecretConfiguration>> OnGetConfigurationsAsync(CancellationToken token)
+        {
+            return await GetObjectsAsync<SecretConfiguration>(_rootContainer, $"{StorageFolders.Config}/", GetConfigurationAsync, token);
+        }
 
         protected async override Task<string> OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)
         {
@@ -151,7 +208,8 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                 Version = secret.Version,
                 SubscriptionId = secret.SubscriptionId,
                 FormatExpression = secret.FormatExpression,
-                SecretType = secret.SecretType
+                SecretType = secret.SecretType,
+                LastRotatedOn = secret.LastRotatedOn
             };
 
             if (secret.Configuration != null)
@@ -319,5 +377,51 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
         {
             return $"{folder}/{id.ToLower()}.json";
         }
+
+        private delegate Task<T> GetSingularObject<T>(string id, CancellationToken token);
+        private static async Task<IEnumerable<T>> GetObjectsAsync<T>(BlobContainerClient client, string prefix, GetSingularObject<T> action, CancellationToken token)
+        {
+            List<Task<T>> workers = new List<Task<T>>();
+
+            string continuationToken = null;
+            List<T> list = new List<T>();
+
+            do
+            {
+                try
+                {
+                    var resultSegment = client.GetBlobs(prefix: prefix).AsPages(continuationToken, 50);
+
+                    foreach (Azure.Page<BlobItem> blobPage in resultSegment)
+                    {
+
+                        foreach (BlobItem blobItem in blobPage.Values)
+                        {
+                            string policyId = System.IO.Path.GetFileNameWithoutExtension(blobItem.Name);
+
+                            //schedule work to be done here
+                            workers.Add(action(policyId, token));
+                        }
+                        continuationToken = blobPage.ContinuationToken;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            } while (false == string.IsNullOrWhiteSpace(continuationToken));
+
+            Task.WaitAll(workers.ToArray(), token);
+
+            foreach (var t in workers)
+            {
+                list.Add(t.Result);
+            }
+
+            return list.AsReadOnly();
+
+
+        }
+
     }
 }

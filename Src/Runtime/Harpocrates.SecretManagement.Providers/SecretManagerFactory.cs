@@ -65,6 +65,7 @@ namespace Harpocrates.SecretManagement.Providers
                 //update Key.Name into secret record?
                 secret.CurrentKeyName = rotated.Name;
                 secret.Version = rotated.SecretVersion;
+                secret.LastRotatedOn = DateTime.UtcNow;
                 try
                 {
                     await _dataProvider.SaveSecretAsync(secret, token); //Save secret

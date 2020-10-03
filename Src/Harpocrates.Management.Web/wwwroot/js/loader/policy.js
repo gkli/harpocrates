@@ -42,7 +42,7 @@ window.Harpocrates.loader.policy = (function (enums, common, data, api, undefine
         loader = loader.load();
 
         loader.done(function (policy) {
-            if (oncomplete) oncomplete(policy);
+            if (oncomplete) oncomplete(data.metadata.converter.policyContractToVm(policy));
         });
 
         loader.fail(function (err) {
