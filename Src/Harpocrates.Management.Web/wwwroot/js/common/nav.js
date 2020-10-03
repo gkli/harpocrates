@@ -16,9 +16,10 @@ window.Harpocrates.ui.menu = (function ($, enums, common, security, undefined) {
             self.onerror = function (data, event) { (event.target || event.srcElement).src = self.errorHref(); };
         }
 
-        function menuItem(text, url, isactive, isheader, highlight, icon, logo) {
+        function menuItem(text, url, tag, isactive, isheader, highlight, icon, logo) {
             var self = this;
             self.text = ko.observable(text);
+            self.tag = ko.observable(tag);
             self.url = ko.observable(url);
             self.isActive = ko.observable(isactive);
             self.visible = ko.observable(true);
@@ -39,12 +40,13 @@ window.Harpocrates.ui.menu = (function ($, enums, common, security, undefined) {
                         itemsMasterList[i].isActive(false);
                     }
                     self.isActive(true);
+                    if (self.events.selected) self.events.selected(self);
                 }
             };
 
-            //self.events = {
-            //    selected: function () { }
-            //};
+            self.events = {
+                selected: function (active) { }
+            };
         }
 
         var isLoggedIn = false; //security.user.isAuthenticated();
@@ -126,7 +128,7 @@ window.Harpocrates.ui.menu = (function ($, enums, common, security, undefined) {
             else url = "/home";
         }
 
-        item = new menuItem(title, url, isHomeActive, false, false, "nc-icon nc-chart-pie-36");
+        item = new menuItem(title, url, "dashboard", isHomeActive, false, false, "nc-icon nc-chart-pie-36");
         itemsMasterList.push(item);
         menuVm.items.left.push(item);
         sidebarVm.items.push(item);
@@ -134,21 +136,54 @@ window.Harpocrates.ui.menu = (function ($, enums, common, security, undefined) {
         if (isHomeActive) menuVm.current(item);
 
         if (!isLoggedIn) {
-            title = "secrets";
+            title = "configuration";
             if (curretMenuContainer === menuContainers.demo) {
                 url = "#";
                 isDemoActive = true;
             }
             else {
-                url = "/home/secrets";
+                url = "/home/config";
             }
 
-            item = new menuItem(title, url, isDemoActive, false, false, "nc-icon nc-settings-90");
+            item = new menuItem(title, url, "config",  isDemoActive, false, false, "nc-icon nc-settings-90");
             itemsMasterList.push(item);
             menuVm.items.left.push(item);
             sidebarVm.items.push(item);
 
             if (isDemoActive) menuVm.current(item);
+
+
+            //var child = new menuItem("Policies", "", "config-policy", false, false, false);
+            //itemsMasterList.push(child);
+            //item.children.push(child);
+
+            //child = new menuItem("Services", "", "config-service", false, false, false);
+            //itemsMasterList.push(child);
+            //item.children.push(child);
+
+            //child = new menuItem("Secrets", "", "config-secret", false, false, false);
+            //itemsMasterList.push(child);
+            //item.children.push(child);
+
+
+
+            title = "settings";
+            if (curretMenuContainer === menuContainers.demo) {
+                url = "#";
+                isDemoActive = true;
+            }
+            else {
+                url = "/home/settings";
+            }
+
+            item = new menuItem(title, url, "settings", isDemoActive, false, false, "nc-icon nc-settings-gear-64");
+            itemsMasterList.push(item);
+            menuVm.items.left.push(item);
+            sidebarVm.items.push(item);
+
+            if (isDemoActive) menuVm.current(item);
+
+
         }
 
         if (!isLoggedIn) {

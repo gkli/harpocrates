@@ -4,19 +4,63 @@ window.Harpocrates.app = (function ($, data, enums, common, security, undefined)
 
     function _createViewModel() {
 
-        function featuredItem(item, template) {
-            var self = this;
+        var structures = {
+            section: function (name, template, parent) {
+                var self = this;
 
-            self.template = ko.observable(template);
-            self.item = ko.observable(item);
-        }
+                self.template = ko.observable(template);
+                self.name = ko.observable(name);
 
-        function page(name, template) {
-            var self = this;
+                self.data = new data.common.entities.collection();;
 
-            self.template = ko.observable(template);
-            self.name = ko.observable(name);
-        }
+                self.actions = {
+                    select: function () {
+                        if (!parent) return;
+                        if (!parent.selected);
+
+                        parent.selected(self);
+                    }
+                };
+
+            },
+            page: function (name, template) {
+                var self = this;
+
+                self.template = ko.observable(template);
+                self.name = ko.observable(name);
+
+                self.sections = new data.common.entities.collection();
+            }
+        };
+
+        var builder = {
+            dashboard: function () {
+                var page = new structures.page("dashboard", "template-body-dashboard");
+
+                return page;
+            },
+            config: function () {
+                var page = new structures.page("config", "template-body-config");
+
+                var section = new structures.section("secrets", "template-body-config-secrets", page.sections);
+                page.sections.items.push(section);
+                page.sections.selected(section);                
+
+                section = new structures.section("services", "template-body-config-services", page.sections);
+                page.sections.items.push(section);
+
+                section = new structures.section("policies", "template-body-config-policies", page.sections);
+                page.sections.items.push(section);
+                
+                return page;
+            },
+            settings: function () {
+                var page = new structures.page("settings", "template-body-settings");
+
+                return page;
+            }
+        };
+
 
         var navVm = window.Harpocrates.ui.menu.createNavViewModel();
 
@@ -31,29 +75,50 @@ window.Harpocrates.app = (function ($, data, enums, common, security, undefined)
             }
         };
 
+        var knownPages = {
+            dashboard: builder.dashboard(),
+            config: builder.config(),
+            settings: builder.settings()
+        };
+
+        vm.body.pages.items.push(knownPages.dashboard);
+        vm.body.pages.selected(knownPages.dashboard);
+
+        vm.body.pages.items.push(knownPages.config);
+
+        vm.body.pages.items.push(knownPages.settings);
 
 
-        var p = new page("dashboard", "template-body-dashboard");
-        vm.body.pages.items.push(p);
-        vm.body.pages.selected(p);
+        function onMenuItemChanged(active) {
+            if (!active) return;
 
-        p = new page("config", "template-body-config");
-        vm.body.pages.items.push(p);
+            var page = null;
 
-        p = new page("manage", "template-body-management");
-        vm.body.pages.items.push(p);
+            switch (active.tag().toLowerCase()) {
+                case "dashboard":
+                    page = knownPages.dashboard;
+                    break;
+                case "config":
+                    page = knownPages.config;
+                    break;
+                case "settings":
+                    page = knownPages.settings;
+                    break;
+            }
 
-        function onMenuItemChanged(newValue) {
-            if (!newValue) return;
-            var o = [];
+            if (null == page) return;
+
+            vm.body.pages.selected(page);
         }
 
         for (var i = 0; i < vm.nav.menu.items.right().length; i++) {
-            vm.nav.menu.items.right()[i].isActive.subscribe(onMenuItemChanged);
+            //vm.nav.menu.items.right()[i].isActive.subscribe(onMenuItemChanged);
+            vm.nav.menu.items.right()[i].events.selected = onMenuItemChanged;
         }
 
         for (var i = 0; i < vm.nav.menu.items.left().length; i++) {
-            vm.nav.menu.items.left()[i].isActive.subscribe(onMenuItemChanged);
+            //vm.nav.menu.items.left()[i].isActive.subscribe(onMenuItemChanged);
+            vm.nav.menu.items.left()[i].events.selected = onMenuItemChanged;
         }
 
         return vm;

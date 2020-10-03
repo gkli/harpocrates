@@ -1,0 +1,19 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="nav nav-pills" data-bind="foreach:sections.items">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bind="click:actions.select, css:{'active':$parent.sections.selected() === $data}">
+                        <span data-bind="text:name"></span>&nbsp;<span class="badge badge-pill badge-primary" data-bind="text:data.items().length"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row" data-bind="with:sections.selected">
+        <div class="col-md-12" data-bind="template:template">
+            
+        </div>
+    </div>
+
+</div>

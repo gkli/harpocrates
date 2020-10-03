@@ -15,14 +15,14 @@
     </a>
     <div class="dropdown-menu dropdown-with-icons" data-bind="foreach:children">
         <!--ko ifnot:isDivider-->
-        <!--ko ifnot:action-->
+        <!--ko ifnot:actions.select-->
         <a class="nav-link" data-bind="attr:{href: url}">
             <!--ko if:icon-->
             <span data-bind="attr:{'class': icon}"></span>&nbsp;&nbsp;<!--/ko--><span data-bind="text:text"></span>
         </a>
         <!--/ko-->
-        <!--ko if:action-->
-        <a class="nav-link actionable" href="#" data-bind="click:action">
+        <!--ko if:actions.select-->
+        <a class="nav-link actionable" href="#" data-bind="click:actions.select">
             <!--ko if:icon-->
             <span data-bind="attr:{'class': icon}"></span>&nbsp;&nbsp;<!--/ko--><span data-bind="text:text"></span>
         </a>

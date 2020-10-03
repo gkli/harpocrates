@@ -1,0 +1,63 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Harpocrates Configuration</h4>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Keyvault Name</label>
+                                    <input type="text" class="form-control" disabled="" placeholder="Keyvaylt name" value="harpocrates-kv">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Storage Account Name</label>
+                                    <input type="text" class="form-control" placeholder="Storage account name" value="https://harpocrates.queue.core.windows.net">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 pr-1">
+                                <div class="form-group">
+                                    <label>Authentication</label>
+                                    <input type="radio" class="form-control">Managed Identity
+                                    <input type="radio" class="form-control">Keyvault Key
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 pr-1">
+                                <div class="form-group">
+                                    <label>Raw Events</label>
+                                    <input type="text" class="form-control" placeholder="Raw events queue name" value="events">
+                                </div>
+                            </div>
+                            <div class="col-md-4 px-1">
+                                <div class="form-group">
+                                    <label>Formatted Events</label>
+                                    <input type="text" class="form-control" placeholder="Formatted events queue name" value="formatted">
+                                </div>
+                            </div>
+                            <div class="col-md-4 pl-1">
+                                <div class="form-group">
+                                    <label>Dead Letter</label>
+                                    <input type="text" class="form-control" placeholder="Dead letter queue name" value="deadletter">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-fill pull-right">Save</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
