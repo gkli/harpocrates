@@ -1,11 +1,11 @@
 ﻿window.Harpocrates = window.Harpocrates || {};
 
-window.Harpocrates.app = (function ($, data, enums, common, security, undefined) {
+window.Harpocrates.app = (function ($, data, enums, common, security, loader, undefined) {
 
     function _createViewModel() {
 
         var structures = {
-            section: function (name, template, parent) {
+            section: function (name, template, parent, load) {
                 var self = this;
 
                 self.template = ko.observable(template);
@@ -19,6 +19,24 @@ window.Harpocrates.app = (function ($, data, enums, common, security, undefined)
                         if (!parent.selected);
 
                         parent.selected(self);
+                    },
+                    refresh: function () {
+                        if (load) {
+
+                            self.data.items.removeAll();
+
+                            load(function (data) {
+                                if (!data) return;
+
+                                for (var i = 0; i < data.length; i++) {
+                                    self.data.items.push(data[i]);
+                                }
+
+
+                            }, function (err) {
+                                console.log("Error: " + err.statusText);
+                            });
+                        }
                     }
                 };
 
@@ -42,16 +60,19 @@ window.Harpocrates.app = (function ($, data, enums, common, security, undefined)
             config: function () {
                 var page = new structures.page("config", "template-body-config");
 
-                var section = new structures.section("secrets", "template-body-config-secrets", page.sections);
+                var section = new structures.section("secrets", "template-body-config-secrets", page.sections, loader.secret.getAll);
+                section.actions.refresh();
                 page.sections.items.push(section);
-                page.sections.selected(section);                
+                page.sections.selected(section);
 
-                section = new structures.section("services", "template-body-config-services", page.sections);
+                section = new structures.section("services", "template-body-config-services", page.sections, loader.service.getAll);
+                section.actions.refresh();
                 page.sections.items.push(section);
 
-                section = new structures.section("policies", "template-body-config-policies", page.sections);
+                section = new structures.section("policies", "template-body-config-policies", page.sections, loader.policy.getAll);
+                section.actions.refresh();
                 page.sections.items.push(section);
-                
+
                 return page;
             },
             settings: function () {
@@ -127,4 +148,4 @@ window.Harpocrates.app = (function ($, data, enums, common, security, undefined)
     return {
         createViewModel: _createViewModel
     };
-})(window.jQuery, window.Harpocrates.viewModels, window.Harpocrates.enums, window.Harpocrates.common, window.Harpocrates.security);
+})(window.jQuery, window.Harpocrates.viewModels, window.Harpocrates.enums, window.Harpocrates.common, window.Harpocrates.security, window.Harpocrates.loader);

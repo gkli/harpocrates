@@ -15,34 +15,10 @@
                         <th><i class="material-icons">add</i></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody data-bind="foreach: data.items">
                     <tr>
-                        <td>15-Day Rotation</td>
-                        <td>15.00:00:00</td>
-                        <td>
-                            <i class="material-icons">edit</i>
-                            <i class="material-icons text-danger">delete</i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>30-Day Rotation</td>
-                        <td>30.00:00:00</td>
-                        <td>
-                            <i class="material-icons">edit</i>
-                            <i class="material-icons text-danger">delete</i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>24-Hour Rotation</td>
-                        <td>1.00:00:00</td>
-                        <td>
-                            <i class="material-icons">edit</i>
-                            <i class="material-icons text-danger">delete</i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Hourly Rotation</td>
-                        <td>01:00:00</td>
+                        <td data-bind="text:name">15-Day Rotation</td>
+                        <td data-bind="text:interval">15.00:00:00</td>
                         <td>
                             <i class="material-icons">edit</i>
                             <i class="material-icons text-danger">delete</i>

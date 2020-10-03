@@ -267,6 +267,29 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         }
     };
 
+    var _metaData = {
+        policy: function (id, name, description, interval) {
+            var self = this;
+
+            self.id = ko.observable(id);
+            self.name = ko.observable(name);
+            self.description = ko.observable(description);
+            self.interval = ko.observable(interval);
+        },
+        service: function (id, name, description, type) { },
+        secret: function (id, name) { }
+    };
+
+    var _metaDataConverter = {
+        policyContractToVm: function (contract) {
+            if (!contract) return null;
+
+            return new _metaData.policy(contract.policyId, contract.name, contract.description, contract.rotationInterval);
+        },
+        policyVmToData: function (vm) { }
+    };
+
+
 
     function vmItem(entities, converter) {
         var self = this;
@@ -276,7 +299,8 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
 
     return {
         //financial: new vmItem(_financial, _financialConverter)
-        common: new vmItem(_common, null)
+        common: new vmItem(_common, null),
+        metadata: new vmItem(_metaData, _metaDataConverter)
     };
 
 })(window.Harpocrates.enums, window.Harpocrates.common);
