@@ -60,7 +60,7 @@ namespace Harpocrates.Host
 
             var host = appHost.Services.GetService<Runtime.Host>();
 
-            //host.CreateSampleDataSetAsync(_cts.Token).Wait();
+            //host.CreateSampleDataSetAsync(_cts.Token, true, false, false).Wait();
 
             host.StartAsync(_cts.Token).Wait();
         }

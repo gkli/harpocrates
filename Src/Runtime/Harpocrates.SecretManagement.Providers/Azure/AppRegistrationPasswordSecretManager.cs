@@ -66,7 +66,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
 
             TimeSpan duration = TimeSpan.FromDays(365);
             if (secret.Configuration?.Policy != null) //should always be true if we got this far
-                duration = secret.Configuration.Policy.RotationInterval + TimeSpan.FromHours(1); //add an hr to 'outlive' policy rotation interval
+                duration = TimeSpan.FromSeconds(secret.Configuration.Policy.RotationIntervalInSec) + TimeSpan.FromHours(1); //add an hr to 'outlive' policy rotation interval
 
             var foo = await app.Update().DefinePasswordCredential(pwdName).WithPasswordValue(pwd).WithDuration(duration).Attach().ApplyAsync();
             return pwd;

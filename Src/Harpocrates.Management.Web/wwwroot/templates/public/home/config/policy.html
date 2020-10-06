@@ -25,7 +25,9 @@
                 <tbody data-bind="foreach: items">
                     <tr>
                         <td data-bind="text:name"> </td>
-                        <td data-bind="text:interval"> </td>
+                        <td data-bind="with:interval">
+                            <!--ko template:'template-controls-datatypes-timespan'--><!--/ko-->
+                        </td>
                         <td>
                             <i class="fa fa-edit"></i>
                             <i class="fa fa-trash"></i>

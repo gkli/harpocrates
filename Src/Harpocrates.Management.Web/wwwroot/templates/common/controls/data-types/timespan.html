@@ -1,0 +1,9 @@
+﻿<!--ko if:inEditMode-->
+<input type="text" data-bind="value:days" />
+<input type="text" data-bind="value:hours" />
+<input type="text" data-bind="value:minutes" />
+<input type="text" data-bind="value:seconds" />
+<!--/ko-->
+<!--ko ifnot:inEditMode-->
+<span data-bind="text:formattedString"></span>
+<!--/ko-->

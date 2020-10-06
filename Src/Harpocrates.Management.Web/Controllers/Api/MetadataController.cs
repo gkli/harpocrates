@@ -25,7 +25,7 @@ namespace Harpocrates.Management.Web.Controllers.Api
         [HttpGet("{id}")]
         public async Task<ActionResult<T>> GetAsync(string id)
         {
-            string json = await Client.GetSingularAsync(GetServiceUri(), id);
+            string json = await Client.GetSingularJsonAsync(GetServiceUri(), id);
 
             T result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
 
@@ -37,7 +37,7 @@ namespace Harpocrates.Management.Web.Controllers.Api
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
         {
-            string json = await Client.GetAllAsync(GetServiceUri());
+            string json = await Client.GetAllJsonAsync(GetServiceUri());
 
             IEnumerable<T> result = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<T>>(json);
 
@@ -56,7 +56,7 @@ namespace Harpocrates.Management.Web.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<T>> SaveAsync(T data)
         {
-            string json = await Client.SaveAsync(GetServiceUri(), Newtonsoft.Json.JsonConvert.SerializeObject(data));
+            string json = await Client.SaveJsonAsync(GetServiceUri(), Newtonsoft.Json.JsonConvert.SerializeObject(data));
 
             T result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
 

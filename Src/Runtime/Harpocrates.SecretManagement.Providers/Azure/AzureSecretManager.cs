@@ -154,7 +154,7 @@ namespace Harpocrates.SecretManagement.Providers.Azure
                 case "secret":
 
                     var attributes = new SecretAttributes() { Enabled = true };
-                    if (null != effectivePolicy) attributes.Expires = DateTime.UtcNow.Add(effectivePolicy.RotationInterval);
+                    if (null != effectivePolicy) attributes.Expires = DateTime.UtcNow.Add(TimeSpan.FromSeconds(effectivePolicy.RotationIntervalInSec));
 
                     value = await ProcessSecretExpressionAsync(secret, value, kvClient, token);
 

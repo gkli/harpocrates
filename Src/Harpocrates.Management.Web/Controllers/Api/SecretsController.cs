@@ -8,7 +8,7 @@ namespace Harpocrates.Management.Web.Controllers.Api
         {
         }
 
-        protected override string ServiceRelativePath => "/services";
+        protected override string ServiceRelativePath => "/secrets";
 
     }
 }

@@ -267,6 +267,93 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         }
     };
 
+    var _dataTypes = {
+        timeSpan: function (d, h, m, s) {
+            var self = this;
+
+            self.mode = ko.observable(enums.controlMode.read);
+
+            self.days = ko.observable(d);
+            self.hours = ko.observable(h);
+            self.minutes = ko.observable(m);
+            self.seconds = ko.observable(s);
+
+            self.totalSeconds = ko.pureComputed(function () {
+                var d = parseInt(self.days()); if (isNaN(d)) d = 0;
+                var h = parseInt(self.hours()); if (isNaN(h)) h = 0;
+                var m = parseInt(self.minutes()); if (isNaN(m)) m = 0;
+                var s = parseInt(self.seconds()); if (isNaN(s)) s = 0;
+
+                h += d * 24;
+                m += h * 60;
+                s += m * 60;
+
+                return s;
+            });
+
+            self.formattedString = ko.pureComputed(function () {
+                var d = parseInt(self.days()); if (isNaN(d)) d = 0;
+                var h = parseInt(self.hours()); if (isNaN(h)) h = 0;
+                var m = parseInt(self.minutes()); if (isNaN(m)) m = 0;
+                var s = parseInt(self.seconds()); if (isNaN(s)) s = 0;
+
+                return d + "." + h.pad(2) + ":" + m.pad(2) + ":" + s.pad(2);
+            });
+
+            self.inEditMode = ko.pureComputed(function () {
+                return parseInt(self.mode()) === enums.controlMode.edit;
+            });
+
+            function updateValues() {
+
+                var d = 0, h = 0, m = 0, s = self.totalSeconds();
+
+                if (s > 59) {
+                    m = Math.floor(s / 60);
+                    s -= m * 60;
+                    if (m > 59) {
+                        h = Math.floor(m / 60);
+                        m -= h * 60;
+                        if (h > 23) {
+                            d = Math.floor(h / 24);
+                            h -= d * 24;
+                        }
+                    }
+                }
+
+                self.days(d);
+                self.hours(h);
+                self.minutes(m);
+                self.seconds(s);
+            }
+
+            updateValues();
+
+            //self.days.subscribe(function (value) { });
+            self.hours.subscribe(function (value) {
+                if (parseInt(value) > 23) updateValues();
+            });
+            self.minutes.subscribe(function (value) {
+                if (parseInt(value) > 59) updateValues();
+            });
+            self.seconds.subscribe(function (value) {
+                if (parseInt(value) > 59) updateValues();
+            });
+
+            self.actions = {
+                edit: {
+                    begin: function () {
+                        self.mode(enums.controlMode.edit);
+                    },
+                    end: function () {
+                        self.mode(enums.controlMode.read);
+                    }
+                }
+            };
+        }
+    };
+
+
     var _metaData = {
         policy: function (id, name, description, seconds) {
             var self = this;
@@ -276,24 +363,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.description = ko.observable(description);
             self.intervalInSeconds = ko.observable(seconds);
 
-            self.interval = ko.pureComputed(function () {
-                var days = 0, hours = 0, minutes = 0, seconds = self.intervalInSeconds();
-
-                if (seconds > 59) {
-                    minutes = Math.floor(seconds / 60);
-                    seconds -= minutes * 60;
-                    if (minutes > 59) {
-                        hours = Math.floor(minutes / 60);
-                        minutes -= hours * 60;
-                        if (hours > 23) {
-                            days = Math.floor(hours / 24);
-                            hours -= days * 24;
-                        }
-                    }
-                }
-
-                return days + "." + hours.pad(2) + ":" + minutes.pad(2) + ":" + seconds.pad(2);
-            });
+            self.interval = ko.observable(new _dataTypes.timeSpan(0, 0, 0, seconds));
         },
         service: function (id, name, description, type, subId, srcConnString, policy) {
             var self = this;
@@ -408,7 +478,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         policyContractToVm: function (contract) {
             if (!contract) return null;
 
-            return new _metaData.policy(contract.policyId, contract.name, contract.description, contract.rotationInterval.totalSeconds);
+            return new _metaData.policy(contract.policyId, contract.name, contract.description, contract.rotationIntervalInSec);
         },
         policyVmToContract: function (vm) { },
 

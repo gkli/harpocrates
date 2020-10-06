@@ -26,7 +26,7 @@ namespace Harpocrates.Management.Web.Server.Client
             }
         }
 
-        public async Task<string> GetAllAsync(string url)
+        public async Task<string> GetAllJsonAsync(string url)
         {
             using (var response = await _client.GetAsync(url))
             {
@@ -36,7 +36,7 @@ namespace Harpocrates.Management.Web.Server.Client
             }
         }
 
-        public async Task<string> GetSingularAsync(string url, string id)
+        public async Task<string> GetSingularJsonAsync(string url, string id)
         {
             using (var response = await _client.GetAsync($"{url}/id"))
             {
@@ -46,7 +46,7 @@ namespace Harpocrates.Management.Web.Server.Client
             }
         }
 
-        public async Task<string> SaveAsync(string url, string data)
+        public async Task<string> SaveJsonAsync(string url, string data)
         {
             using (var response = await _client.PostAsync(url, new StringContent(data)))
             {

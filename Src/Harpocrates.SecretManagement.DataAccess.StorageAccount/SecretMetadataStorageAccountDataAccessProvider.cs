@@ -182,7 +182,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             {
                 sp = new Contracts.Policy()
                 {
-                    RotationInterval = policy.RotationInterval,
+                    RotationIntervalInSec = policy.RotationIntervalInSec,
                     Name = policy.Name,
                     Description = policy.Description,
                     PolicyId = policy.PolicyId

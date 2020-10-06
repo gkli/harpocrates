@@ -48,7 +48,7 @@ namespace Harpocrates.Runtime
             _logger.LogInformation($"Monitoring stopping: {DateTime.Now}");
         }
 
-        public async Task CreateSampleDataSetAsync(CancellationToken token)
+        public async Task CreateSampleDataSetAsync(CancellationToken token, bool savePolicies, bool saveServices, bool saveSecrets)
         {
             string subscriptionId = "e4e151a2-0cd9-4598-aa8d-cb8d5f72eeef";
 
@@ -66,7 +66,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "15-Day Rotation",
                 Description = "Rotates secrets every 15 days",
-                RotationInterval = TimeSpan.FromDays(15)
+                RotationIntervalInSec = (long)TimeSpan.FromDays(15).TotalSeconds
             });
 
             id = Guid.Parse("d5bfb8a3-bc76-4a1E-bb46-50904ebb9273");
@@ -75,7 +75,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "30-Day Rotation",
                 Description = "Rotates secrets every 30 days",
-                RotationInterval = TimeSpan.FromDays(30)
+                RotationIntervalInSec = (long)TimeSpan.FromDays(30).TotalSeconds
             });
 
             id = Guid.Parse("6CADA23D-76B1-4B50-A773-E4D0822D6821");
@@ -84,7 +84,7 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "24-Hour Rotation",
                 Description = "Rotates secrets every 24 hours",
-                RotationInterval = TimeSpan.FromDays(1)
+                RotationIntervalInSec = (long)TimeSpan.FromDays(1).TotalSeconds
             });
 
             id = Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216");
@@ -93,12 +93,15 @@ namespace Harpocrates.Runtime
                 PolicyId = id,
                 Name = "1-Hour Rotation",
                 Description = "Rotates secrets every 1 hour",
-                RotationInterval = TimeSpan.FromHours(1)
+                RotationIntervalInSec = (long)TimeSpan.FromHours(1).TotalSeconds
             }); ;
 
-            foreach (var policy in policies.Values)
+            if (savePolicies)
             {
-                await dataProvider.SavePolicyAsync(policy, token);
+                foreach (var policy in policies.Values)
+                {
+                    await dataProvider.SavePolicyAsync(policy, token);
+                }
             }
             #endregion
 
@@ -165,9 +168,12 @@ namespace Harpocrates.Runtime
                 Policy = policies[Guid.Parse("520FD7E3-04EF-48F6-B163-99B7DC74B216")]
             });
 
-            foreach (var config in configs.Values)
+            if (saveServices)
             {
-                await dataProvider.SaveConfigurationAsync(config, token);
+                foreach (var config in configs.Values)
+                {
+                    await dataProvider.SaveConfigurationAsync(config, token);
+                }
             }
             #endregion
 
@@ -340,9 +346,12 @@ namespace Harpocrates.Runtime
 
             #endregion
 
-            foreach (var secret in secrets)
+            if (saveSecrets)
             {
-                await dataProvider.SaveSecretAsync(secret, token);
+                foreach (var secret in secrets)
+                {
+                    await dataProvider.SaveSecretAsync(secret, token);
+                }
             }
 
             await dataProvider.AddSecretDependencyAsync(secrets[1].Key, secrets[2].Key, token);

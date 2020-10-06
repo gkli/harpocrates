@@ -7,9 +7,9 @@ namespace Harpocrates.Management.Web.Server.Client
 {
     public interface IMetadataServiceClient
     {
-        Task<string> GetSingularAsync(string url, string id);
-        Task<string> GetAllAsync(string url);
+        Task<string> GetSingularJsonAsync(string url, string id);
+        Task<string> GetAllJsonAsync(string url);
         Task<bool> DeleteAsync(string url, string id);
-        Task<string> SaveAsync(string url, string data);
+        Task<string> SaveJsonAsync(string url, string data);
     }
 }

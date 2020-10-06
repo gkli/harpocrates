@@ -29,12 +29,18 @@ window.Harpocrates.enums = (function (undefined) {
         dependency: 1
     };
 
+    var _controlMode = {
+        read: 1,
+        edit: 2
+    }
+
 
     return {
         nullableBool: _threeStateBool,
         guid: _guid,
         serviceType: _serviceType,
-        secretType: _secretType
+        secretType: _secretType,
+        controlMode: _controlMode
     };
 
 })();
