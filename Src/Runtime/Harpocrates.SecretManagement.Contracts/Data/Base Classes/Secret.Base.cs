@@ -104,7 +104,7 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         private string GetUri(bool includeVersion)
         {
             string type = "secrets";
-            switch (ObjectType.ToLower())
+            switch (ObjectType?.ToLower())
             {
                 case "key":
                     type = "keys";

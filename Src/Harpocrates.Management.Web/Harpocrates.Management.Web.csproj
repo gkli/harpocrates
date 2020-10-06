@@ -17,10 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Harpocrates.SecretManagement.DataAccess.StorageAccount\Harpocrates.SecretManagement.DataAccess.StorageAccount.csproj" />
-    <ProjectReference Include="..\Runtime\Harpocrates.Runtime.Common\Harpocrates.Runtime.Common.csproj" />
     <ProjectReference Include="..\Runtime\Harpocrates.SecretManagement.Contracts\Harpocrates.SecretManagement.Contracts.csproj" />
-    <ProjectReference Include="..\Runtime\Harpocrates.SecretManagement.DataAccess\Harpocrates.SecretManagement.DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

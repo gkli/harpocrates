@@ -1,37 +1,14 @@
 ﻿using Harpocrates.SecretManagement.Contracts.Data;
-using Harpocrates.SecretManagement.DataAccess;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Harpocrates.Management.Web.Controllers.Api
 {
     public class SecretsController : MetadataController<Secret>
     {
-        public SecretsController(ISecretMetadataDataAccessProvider dataProvider) : base(dataProvider)
+        public SecretsController(Server.Configuration.IConfigurationProvider config, Server.Client.IMetadataServiceClient client) : base(config, client)
         {
         }
 
-        protected override Task<bool> OnDeleteAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
+        protected override string ServiceRelativePath => "/services";
 
-        protected override async Task<IEnumerable<Secret>> OnGetAllAsync()
-        {
-            return await DataAccessProvider.GetConfiguredSecretsAsync(CancellationToken);
-        }
-
-        protected override Task<Secret> OnGetAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<Secret> OnSaveAsync(Secret data)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

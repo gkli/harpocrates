@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,19 +13,21 @@ namespace Harpocrates.Management.Web.Controllers.Api
         where T : new()
     {
 
-        public MetadataController(SecretManagement.DataAccess.ISecretMetadataDataAccessProvider dataProvider)
+        public MetadataController(Server.Configuration.IConfigurationProvider config, Server.Client.IMetadataServiceClient client)
         {
-            DataAccessProvider = dataProvider;
-            CancellationToken = CancellationToken.None;
+            Configuration = config;
+            Client = client;
         }
 
-        protected SecretManagement.DataAccess.ISecretMetadataDataAccessProvider DataAccessProvider { get; private set; }
-        protected CancellationToken CancellationToken { get; private set; }
+        protected Server.Configuration.IConfigurationProvider Configuration { get; private set; }
+        protected Server.Client.IMetadataServiceClient Client { get; private set; }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<T>> GetAsync(string id)
         {
-            T result = await OnGetAsync(id);
+            string json = await Client.GetSingularAsync(GetServiceUri(), id);
+
+            T result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
 
             if (result == null) return NotFound();
 
@@ -34,7 +37,9 @@ namespace Harpocrates.Management.Web.Controllers.Api
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
         {
-            IEnumerable<T> result = await OnGetAllAsync();
+            string json = await Client.GetAllAsync(GetServiceUri());
+
+            IEnumerable<T> result = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<T>>(json);
 
             if (result == null) return NotFound();
 
@@ -45,22 +50,67 @@ namespace Harpocrates.Management.Web.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> DeleteAsync(string id)
         {
-            return Ok(await OnDeleteAsync(id));
+            return Ok(await Client.DeleteAsync(GetServiceUri(), id));
         }
 
         [HttpPost]
         public async Task<ActionResult<T>> SaveAsync(T data)
         {
-            T result = await OnSaveAsync(data);
+            string json = await Client.SaveAsync(GetServiceUri(), Newtonsoft.Json.JsonConvert.SerializeObject(data));
+
+            T result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+
             if (null == result) return NotFound();
 
             return Ok(result);
         }
 
-        protected abstract Task<T> OnGetAsync(string id);
-        protected abstract Task<IEnumerable<T>> OnGetAllAsync();
-        protected abstract Task<T> OnSaveAsync(T data);
-        protected abstract Task<bool> OnDeleteAsync(string id);
 
+
+        protected abstract string ServiceRelativePath { get; }
+
+
+        //private async Task<TResult> GetFromServiceAsync<TResult>(string url)
+        //{
+        //    using (var response = await HttpClient.GetAsync(url))
+        //    {
+        //        response.EnsureSuccessStatusCode();
+
+        //        string json = await response.Content.ReadAsStringAsync();
+
+        //        return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(json);
+        //    }
+        //}
+
+        //private async Task<TResult> PostToServiceAsync<TResult, TData>(string url, TData data)
+        //{
+
+        //    using (var response = await HttpClient.PostAsync(url, new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data))))
+        //    {
+        //        response.EnsureSuccessStatusCode();
+
+        //        string json = await response.Content.ReadAsStringAsync();
+
+        //        return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(json);
+        //    }
+
+        //}
+
+        //private async Task<TResult> DeleteFromServiceAsync<TResult>(string url)
+        //{
+        //    using (var response = await HttpClient.DeleteAsync(url))
+        //    {
+        //        response.EnsureSuccessStatusCode();
+
+        //        string json = await response.Content.ReadAsStringAsync();
+
+        //        return Newtonsoft.Json.JsonConvert.DeserializeObject<TResult>(json);
+        //    }
+        //}
+
+        private string GetServiceUri()
+        {
+            return $"{Configuration.MetadataServiceBaseUri}{ServiceRelativePath}";
+        }
     }
 }

@@ -33,17 +33,11 @@ namespace Harpocrates.Management.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient<Server.Client.IMetadataServiceClient, Server.Client.MetadataServiceClient>();
 
             services.AddControllersWithViews();
 
-            services.AddSingleton<Runtime.Common.Configuration.IConfigurationManager, Server.WebServerConfigurationProvider>()
-                    .AddTransient<SecretManagement.DataAccess.ISecretMetadataDataAccessProvider>(s =>
-                    {
-                        Runtime.Common.Configuration.IConfigurationManager cfg = s.GetRequiredService<Runtime.Common.Configuration.IConfigurationManager>();
-
-                        return new SecretManagement.DataAccess.StorageAccount.SecretMetadataStorageAccountDataAccessProvider(
-                            cfg.SecretManagementConnectionString, cfg);
-                    });
+            services.AddSingleton<Server.Configuration.IConfigurationProvider, Server.Configuration.ServerConfigurationProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

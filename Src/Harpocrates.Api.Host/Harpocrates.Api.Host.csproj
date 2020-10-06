@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Harpocrates.SecretManagement.DataAccess.StorageAccount\Harpocrates.SecretManagement.DataAccess.StorageAccount.csproj" />
+    <ProjectReference Include="..\Runtime\Harpocrates.Runtime.Common\Harpocrates.Runtime.Common.csproj" />
+    <ProjectReference Include="..\Runtime\Harpocrates.Runtime\Harpocrates.Runtime.csproj" />
+  </ItemGroup>
+
+
+</Project>
