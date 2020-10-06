@@ -264,6 +264,16 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                 if (state.modal) state.modal.modal('hide');
             };
 
+        },
+        modalState: function () {
+            var self = this;
+
+            self.root = null;
+            self.modal = null;
+            self.clear = function () {
+                self.root = null;
+                self.modal = null;
+            }
         }
     };
 
@@ -364,6 +374,39 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.intervalInSeconds = ko.observable(seconds);
 
             self.interval = ko.observable(new _dataTypes.timeSpan(0, 0, 0, seconds));
+
+            var modalState = new _internalUtilities.modalState();
+
+            self.actions = {
+                edit: {
+                    begin: function () {
+                        modalState.root = $('div.template-body-config-editor-policy');
+
+                        ko.applyBindings(self, modalState.root[0]);
+
+                        modalState.modal = modalState.root.find('div.modal');
+
+                        modalState.modal.on('shown.bs.modal', function () {
+
+                        });
+
+                        modalState.modal.on('hidden.bs.modal', function () {
+                            modalState.modal.modal('dispose');
+                            ko.cleanNode(modalState.root[0]);
+                            modalState.clear();
+                        });
+
+                        modalState.modal.modal('show');
+                    },
+                    end: function () {
+                        if (modalState.modal) modalState.modal.modal('hide');
+                    }
+                },
+                save: function () {
+
+
+                }
+            };
         },
         service: function (id, name, description, type, subId, srcConnString, policy) {
             var self = this;
@@ -376,6 +419,38 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.subscriptionId = ko.observable(subId);
             self.sourceConnectionString = ko.observable(srcConnString);
 
+            var modalState = new _internalUtilities.modalState();
+
+            self.actions = {
+                edit: {
+                    begin: function () {
+                        modalState.root = $('div.template-body-config-editor-service');
+
+                        ko.applyBindings(self, modalState.root[0]);
+
+                        modalState.modal = modalState.root.find('div.modal');
+
+                        modalState.modal.on('shown.bs.modal', function () {
+
+                        });
+
+                        modalState.modal.on('hidden.bs.modal', function () {
+                            modalState.modal.modal('dispose');
+                            ko.cleanNode(modalState.root[0]);
+                            modalState.clear();
+                        });
+
+                        modalState.modal.modal('show');
+                    },
+                    end: function () {
+                        if (modalState.modal) modalState.modal.modal('hide');
+                    }
+                },
+                save: function () {
+
+
+                }
+            };
         },
         secret: function (key, uri, vault, objectType, objectName, type, name, description, subscriptionId, formatExpression, currentKeyName, lastRotated, service) {
             var self = this;
@@ -425,7 +500,38 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                 return true;
             });
 
+            var modalState = new _internalUtilities.modalState();
 
+            self.actions = {
+                edit: {
+                    begin: function () {
+                        modalState.root = $('div.template-body-config-editor-secret');
+
+                        ko.applyBindings(self, modalState.root[0]);
+
+                        modalState.modal = modalState.root.find('div.modal');
+
+                        modalState.modal.on('shown.bs.modal', function () {
+
+                        });
+
+                        modalState.modal.on('hidden.bs.modal', function () {
+                            modalState.modal.modal('dispose');
+                            ko.cleanNode(modalState.root[0]);
+                            modalState.clear();
+                        });
+
+                        modalState.modal.modal('show');
+                    },
+                    end: function () {
+                        if (modalState.modal) modalState.modal.modal('hide');
+                    }
+                },
+                save: function () {
+
+
+                }
+            };
         },
         serviceType: function (type) {
             var self = this;

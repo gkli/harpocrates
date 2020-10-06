@@ -5,11 +5,18 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
     function _createViewModel() {
 
         var structures = {
-            section: function (name, template, parent, load) {
+            editor: function (name, template) {
+                var self = this;
+
+                self.name = ko.observable(name);
+                self.template = ko.observable(template);
+            },
+            section: function (name, template, editorTemplate, parent, load) {
                 var self = this;
 
                 self.template = ko.observable(template);
                 self.name = ko.observable(name);
+                self.editor = ko.observable(new structures.editor("editor: " + name, editorTemplate));
 
                 self.data = new data.common.entities.collection();
 
@@ -66,16 +73,16 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
             config: function () {
                 var page = new structures.page("config", "template-body-config");
 
-                var section = new structures.section("secrets", "template-body-config-secrets", page.sections, loader.secret.getAll);
+                var section = new structures.section("secrets", "template-body-config-secrets", "template-body-config-editor-secret", page.sections, loader.secret.getAll);
                 section.actions.refresh();
                 page.sections.items.push(section);
                 page.sections.selected(section);
 
-                section = new structures.section("services", "template-body-config-services", page.sections, loader.service.getAll);
+                section = new structures.section("services", "template-body-config-services", "template-body-config-editor-service", page.sections, loader.service.getAll);
                 section.actions.refresh();
                 page.sections.items.push(section);
 
-                section = new structures.section("policies", "template-body-config-policies", page.sections, loader.policy.getAll);
+                section = new structures.section("policies", "template-body-config-policies", "template-body-config-editor-policy", page.sections, loader.policy.getAll);
                 section.actions.refresh();
                 page.sections.items.push(section);
 

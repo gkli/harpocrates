@@ -1,0 +1,68 @@
+﻿<div class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-login' role='document'>
+        <div class='modal-content'>
+            <div class="container-fluid">
+
+                <div class="card card-plain">
+                    <div class="card-header ">
+                        <h4 class="card-title">Editor</h4>
+                        <p class="card-category">Policy: <span data-bind="text:name"></span></p>
+                    </div>
+
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" placeholder="Policy name" data-bind="value:name, valueUpdate: 'afterkeydown'">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" class="form-control" placeholder="Policy description" data-bind="value:description, valueUpdate: 'afterkeydown'">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group" data-bind="with:interval">
+                                        <label>Rotation interval</label>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="text" class="form-control" placeholder="Days" data-bind="value:days">
+                                            </div><div class="col-md-3">
+                                                <input type="text" class="form-control" placeholder="Hours" data-bind="value:hours">
+                                            </div><div class="col-md-3">
+                                                <input type="text" class="form-control" placeholder="Minutes" data-bind="value:minutes">
+                                            </div><div class="col-md-3">
+                                                <input type="text" class="form-control" placeholder="Seconds" data-bind="value:seconds">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <span class="float-left">
+                            <button class="btn btn-danger btn-outline-danger pull-right" data-bind="click:actions.edit.end">Cancel</button>
+                        </span>
+                        <span class="float-right">
+                            <button class="btn btn-info btn-outline-info  pull-right" data-bind="click:actions.save">Save</button> <!-- enable:can.save, clickBubble: false, css:{'btn-outline-success': can.save(), 'btn-outline-warning': !can.save()} -->
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
