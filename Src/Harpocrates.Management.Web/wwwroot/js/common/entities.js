@@ -371,7 +371,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.id = ko.observable(id);
             self.name = ko.observable(name);
             self.description = ko.observable(description);
-            self.intervalInSeconds = ko.observable(seconds);
+            //self.intervalInSeconds = ko.observable(seconds);
 
             self.interval = ko.observable(new _dataTypes.timeSpan(0, 0, 0, seconds));
 
@@ -403,8 +403,21 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                     }
                 },
                 save: function () {
+                },
+                refresh: function () {
+                    if (!self.id()) return;
 
+                    if (!window.Harpocrates.api.policy) throw "Policy api is required to perform this operation";
+                    if (!window.Harpocrates.loader.policy) throw "Policy loader is required to perform this operation";
 
+                    window.Harpocrates.loader.policy.get(self.id(), function (policy) {
+
+                        self.id(policy.id());
+                        self.name(policy.name());
+                        self.description(policy.description());
+                        self.interval(policy.interval());
+
+                    }, function (err) { });
                 }
             };
         },
@@ -447,8 +460,27 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                     }
                 },
                 save: function () {
+                },
+                refresh: function () {
+                    if (!self.id()) return;
 
+                    if (!window.Harpocrates.api.service) throw "Service api is required to perform this operation";
+                    if (!window.Harpocrates.loader.service) throw "Service loader is required to perform this operation";
 
+                    window.Harpocrates.loader.service.get(self.id(), function (service) {
+
+                        self.id(service.id());
+                        self.name(service.name());
+                        self.description(service.description());
+                        self.type(service.type());
+                        self.subscriptionId(service.subscriptionId());
+                        self.sourceConnectionString(service.sourceConnectionString());
+
+                        //should we lazy load this instead?
+
+                        self.policy(service.policy);
+
+                    }, function (err) { });
                 }
             };
         },
@@ -528,8 +560,32 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                     }
                 },
                 save: function () {
+                },
+                refresh: function () {
+                    if (!self.id()) return;
 
+                    if (!window.Harpocrates.api.secret) throw "Secret api is required to perform this operation";
+                    if (!window.Harpocrates.loader.secret) throw "Secret loader is required to perform this operation";
 
+                    window.Harpocrates.loader.secret.get(self.id(), function (secret) {
+
+                        self.id(secret.id());
+                        self.name(secret.name());
+                        self.description(secret.description());
+                        self.uri(secret.uri());
+                        self.vaultName(secret.vaultName());
+                        self.objectType(secret.objectType());
+                        self.objectName(secret.objectName());
+                        self.subscriptionId(secret.subscriptionId());
+                        self.formatExpression(secret.formatExpression());
+                        self.currentKeyName(secret.currentKeyName());
+                        self.lastRotatedOn(secret.lastRotatedOn());
+                        self.type(secret.type());
+
+                        //should we lazy load this instead?
+                        self.service(secret.service());
+
+                    }, function (err) { });
                 }
             };
         },
@@ -624,7 +680,10 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
     var _masterData = {
         metaData: {
             serviceTypes: new _common.collection("service types"),
-            secretTypes: new _common.collection("secret types")
+            secretTypes: new _common.collection("secret types"),
+            policies: new _common.collection("policies"),
+            services: new _common.collection("services"),
+            secrets: new _common.collection("secrets")
         }
     };
 

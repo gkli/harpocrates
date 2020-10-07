@@ -17,5 +17,18 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         public string SubscriptionId { get; set; }
 
         public ServiceType ServiceType { get; set; }
+
+        public SecretConfiguration ToSecretConfig()
+        {
+            return new SecretConfiguration()
+            {
+                ConfigurationId = ConfigurationId,
+                Description = Description,
+                Name = Name,
+                ServiceType = ServiceType,
+                SourceConnectionString = SourceConnectionString,
+                SubscriptionId = SubscriptionId
+            };
+        }
     }
 }

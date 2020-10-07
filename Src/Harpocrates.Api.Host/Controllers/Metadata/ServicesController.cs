@@ -18,14 +18,36 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
             throw new NotImplementedException();
         }
 
-        protected override async Task<IEnumerable<SecretConfiguration>> OnGetAllAsync()
+        protected override async Task<IEnumerable<SecretConfiguration>> OnGetAllAsync(bool shallow)
         {
-            return await DataAccessProvider.GetConfigurationsAsync(CancellationToken);
+            if (shallow)
+            {
+                var services = await DataAccessProvider.GetConfigurationsAsync(CancellationToken);
+                if (null == services) return null;
+
+                List<SecretConfiguration> items = new List<SecretConfiguration>();
+
+                Parallel.ForEach(services, (service) =>
+                {
+                    items.Add(service.ToSecretConfig());
+                });
+
+                return items;
+            }
+            else
+                return await DataAccessProvider.GetSecretConfigurationsAsync(CancellationToken);
         }
 
-        protected override async Task<SecretConfiguration> OnGetAsync(string id)
+        protected override async Task<SecretConfiguration> OnGetAsync(string id, bool shallow)
         {
-            throw new NotImplementedException();
+            if (shallow)
+            {
+                var cfg = await DataAccessProvider.GetConfigurationAsync(id, CancellationToken);
+                if (null == cfg) return null;
+                return cfg.ToSecretConfig();
+            }
+            else
+                return await DataAccessProvider.GetSecretConfigurationAsync(id, CancellationToken);
         }
 
         protected override async Task<SecretConfiguration> OnSaveAsync(SecretConfiguration data)

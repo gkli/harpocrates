@@ -26,9 +26,9 @@ namespace Harpocrates.Management.Web.Server.Client
             }
         }
 
-        public async Task<string> GetAllJsonAsync(string url)
+        public async Task<string> GetAllJsonAsync(string url, bool shallow)
         {
-            using (var response = await _client.GetAsync(url))
+            using (var response = await _client.GetAsync($"{url}/?shallow={shallow}"))
             {
                 response.EnsureSuccessStatusCode();
 
@@ -36,9 +36,9 @@ namespace Harpocrates.Management.Web.Server.Client
             }
         }
 
-        public async Task<string> GetSingularJsonAsync(string url, string id)
+        public async Task<string> GetSingularJsonAsync(string url, string id, bool shallow)
         {
-            using (var response = await _client.GetAsync($"{url}/id"))
+            using (var response = await _client.GetAsync($"{url}/{id}?shallow={shallow}"))
             {
                 response.EnsureSuccessStatusCode();
 

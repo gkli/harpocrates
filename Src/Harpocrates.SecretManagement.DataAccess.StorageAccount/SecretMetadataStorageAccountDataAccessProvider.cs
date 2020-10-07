@@ -47,6 +47,10 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Secret>(json);
         }
 
+        protected override async Task<IEnumerable<SecretBase>> OnGetSecretsAsync(CancellationToken token)
+        {
+            return await GetObjectsAsync<SecretBase>(_rootContainer, $"{StorageFolders.Secret}/", GetSecretAsync, token);
+        }
         protected async override Task<Secret> OnGetConfiguredSecretAsync(string key, CancellationToken token)
         {
             SecretBase sb = await GetSecretAsync(key, token);
@@ -58,28 +62,14 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             Secret s = sb as Secret; //should never really happen give the code flow...
             if (null == s)
             {
-                s = new Secret()
-                {
-                    ObjectName = sb.ObjectName,
-                    ObjectType = sb.ObjectType,
-                    VaultName = sb.VaultName,
-                    Version = sb.Version,
-                    CurrentKeyName = sb.CurrentKeyName,
-                    Description = sb.Description,
-                    FormatExpression = sb.FormatExpression,
-                    Name = sb.Name,
-                    SubscriptionId = sb.SubscriptionId,
-                    SecretType = sb.SecretType,
-                    LastRotatedOn = sb.LastRotatedOn
-                };
-
+                s = sb.ToConfiguredSecret();
             }
 
             Contracts.Secret cs = sb as Contracts.Secret;
 
             if (null != cs)
             {
-                s.Configuration = await GetConfigurationAsync(cs.ConfigurationId.ToString(), token);
+                s.Configuration = await GetSecretConfigurationAsync(cs.ConfigurationId.ToString(), token);
 
                 //if (null != token && token.IsCancellationRequested) return null; //cancel
 
@@ -149,7 +139,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             //return policies.AsReadOnly();
         }
 
-        protected async override Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token)
+        protected async override Task<SecretConfiguration> OnGetSecretConfigurationAsync(string configId, CancellationToken token)
         {
             string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, configId), token);
             if (string.IsNullOrWhiteSpace(json)) return null;
@@ -170,9 +160,22 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             return result;
         }
 
-        protected override async Task<IEnumerable<SecretConfiguration>> OnGetConfigurationsAsync(CancellationToken token)
+        protected override async Task<IEnumerable<SecretConfiguration>> OnGetSecretConfigurationsAsync(CancellationToken token)
         {
-            return await GetObjectsAsync<SecretConfiguration>(_rootContainer, $"{StorageFolders.Config}/", GetConfigurationAsync, token);
+            return await GetObjectsAsync<SecretConfiguration>(_rootContainer, $"{StorageFolders.Config}/", GetSecretConfigurationAsync, token);
+        }
+
+        protected async override Task<SecretConfigurationBase> OnGetConfigurationAsync(string configId, CancellationToken token)
+        {
+            string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Config, configId), token);
+            if (string.IsNullOrWhiteSpace(json)) return null;
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Config>(json);
+        }
+
+        protected async override Task<IEnumerable<SecretConfigurationBase>> OnGetConfigurationsAsync(CancellationToken token)
+        {
+            return await GetObjectsAsync<SecretConfigurationBase>(_rootContainer, $"{StorageFolders.Config}/", GetConfigurationAsync, token);
         }
 
         protected async override Task<string> OnSavePolicyAsync(SecretPolicy policy, CancellationToken token)

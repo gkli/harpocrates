@@ -23,9 +23,9 @@ namespace Harpocrates.Management.Web.Controllers.Api
         protected Server.Client.IMetadataServiceClient Client { get; private set; }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<T>> GetAsync(string id)
+        public async Task<ActionResult<T>> GetAsync(string id, [FromQuery] bool shallow)
         {
-            string json = await Client.GetSingularJsonAsync(GetServiceUri(), id);
+            string json = await Client.GetSingularJsonAsync(GetServiceUri(), id, shallow);
 
             T result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
 
@@ -35,9 +35,9 @@ namespace Harpocrates.Management.Web.Controllers.Api
         }
 
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<T>>> GetAllAsync([FromQuery] bool shallow)
         {
-            string json = await Client.GetAllJsonAsync(GetServiceUri());
+            string json = await Client.GetAllJsonAsync(GetServiceUri(), shallow);
 
             IEnumerable<T> result = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<T>>(json);
 

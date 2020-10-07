@@ -10,6 +10,8 @@ namespace Harpocrates.SecretManagement.DataAccess
         Task<Contracts.Data.SecretBase> GetSecretAsync(string key, CancellationToken token);
         Task<Contracts.Data.SecretBase> GetSecretAsync(Uri secretUri, CancellationToken token);
 
+        Task<IEnumerable<Contracts.Data.SecretBase>> GetSecretsAsync(CancellationToken token);
+
         Task<Contracts.Data.Secret> GetConfiguredSecretAsync(string key, CancellationToken token);
         Task<Contracts.Data.Secret> GetConfiguredSecretAsync(Uri secretUri, CancellationToken token);
         Task<IEnumerable<Contracts.Data.Secret>> GetConfiguredSecretsAsync(CancellationToken token);
@@ -23,8 +25,12 @@ namespace Harpocrates.SecretManagement.DataAccess
         Task DeletePolicyAsync(string policyId, CancellationToken token);
         Task<string> SavePolicyAsync(Contracts.Data.SecretPolicy policy, CancellationToken token);
 
-        Task<Contracts.Data.SecretConfiguration> GetConfigurationAsync(string configId, CancellationToken token);
-        Task<IEnumerable<Contracts.Data.SecretConfiguration>> GetConfigurationsAsync(CancellationToken token);
+
+        Task<Contracts.Data.SecretConfiguration> GetSecretConfigurationAsync(string configId, CancellationToken token);
+        Task<IEnumerable<Contracts.Data.SecretConfiguration>> GetSecretConfigurationsAsync(CancellationToken token);
+
+        Task<Contracts.Data.SecretConfigurationBase> GetConfigurationAsync(string configId, CancellationToken token);
+        Task<IEnumerable<Contracts.Data.SecretConfigurationBase>> GetConfigurationsAsync(CancellationToken token);
         Task DeleteConfigurationAsync(string configId, CancellationToken token);
         Task<string> SaveConfigurationAsync(Contracts.Data.SecretConfiguration config, CancellationToken token);
 

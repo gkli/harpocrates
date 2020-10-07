@@ -22,24 +22,26 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
         protected CancellationToken CancellationToken { get; private set; }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<T>> GetAsync(string id)
+        public async Task<ActionResult<T>> GetAsync(string id, [FromQuery] bool shallow)
         {
-            T result = await OnGetAsync(id);
+            T result = await OnGetAsync(id, shallow);
 
             if (result == null) return NotFound();
 
             return Ok(result);
         }
+
 
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<T>>> GetAllAsync([FromQuery] bool shallow)
         {
-            IEnumerable<T> result = await OnGetAllAsync();
+            IEnumerable<T> result = await OnGetAllAsync(shallow);
 
             if (result == null) return NotFound();
 
             return Ok(result);
         }
+
 
 
         [HttpDelete("{id}")]
@@ -57,8 +59,8 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
             return Ok(result);
         }
 
-        protected abstract Task<T> OnGetAsync(string id);
-        protected abstract Task<IEnumerable<T>> OnGetAllAsync();
+        protected abstract Task<T> OnGetAsync(string id, bool shallow);
+        protected abstract Task<IEnumerable<T>> OnGetAllAsync(bool shallow);
         protected abstract Task<T> OnSaveAsync(T data);
         protected abstract Task<bool> OnDeleteAsync(string id);
 

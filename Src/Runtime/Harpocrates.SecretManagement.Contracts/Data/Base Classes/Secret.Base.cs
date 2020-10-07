@@ -81,6 +81,23 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         }
 
+        public Secret ToConfiguredSecret()
+        {
+            return new Secret()
+            {
+                CurrentKeyName = CurrentKeyName,
+                Description = Description,
+                FormatExpression = FormatExpression,
+                LastRotatedOn = LastRotatedOn,
+                Name = Name,
+                ObjectName = ObjectName,
+                ObjectType = ObjectType,
+                SecretType = SecretType,
+                SubscriptionId = SubscriptionId,
+                VaultName = VaultName,
+                Version = Version
+            };
+        }
         public string Key => GetKey(); //primary key for record
 
         private string GetKey()

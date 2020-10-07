@@ -28,8 +28,13 @@ namespace Harpocrates.SecretManagement.DataAccess
 
             if (token.IsCancellationRequested) return null;
 
-
             return await GetSecretAsync(GetSecretKeyFromUri(secretUri), token);
+        }
+
+        public async Task<IEnumerable<SecretBase>> GetSecretsAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested) return null;
+            return await OnGetSecretsAsync(token);
         }
 
         public async Task<Secret> GetConfiguredSecretAsync(string key, CancellationToken token)
@@ -98,7 +103,7 @@ namespace Harpocrates.SecretManagement.DataAccess
             await OnDeletePolicyAsync(policyId, token);
         }
 
-        public async Task<SecretConfiguration> GetConfigurationAsync(string configId, CancellationToken token)
+        public async Task<SecretConfigurationBase> GetConfigurationAsync(string configId, CancellationToken token)
         {
             //TODO: Validate input 
 
@@ -108,10 +113,27 @@ namespace Harpocrates.SecretManagement.DataAccess
         }
 
 
-        public async Task<IEnumerable<SecretConfiguration>> GetConfigurationsAsync(CancellationToken token)
+        public async Task<IEnumerable<SecretConfigurationBase>> GetConfigurationsAsync(CancellationToken token)
         {
             return await OnGetConfigurationsAsync(token);
         }
+
+
+
+
+        public async Task<SecretConfiguration> GetSecretConfigurationAsync(string configId, CancellationToken token)
+        {
+            if (token.IsCancellationRequested) return null;
+
+            return await OnGetSecretConfigurationAsync(configId, token);
+        }
+
+        public async Task<IEnumerable<SecretConfiguration>> GetSecretConfigurationsAsync(CancellationToken token)
+        {
+            return await OnGetSecretConfigurationsAsync(token);
+        }
+
+
 
         public async Task DeleteConfigurationAsync(string configId, CancellationToken token)
         {
@@ -157,6 +179,8 @@ namespace Harpocrates.SecretManagement.DataAccess
             return SecretBase.FromKeyvaultUri(secreturi.ToString()).Key;
         }
         protected abstract Task<SecretBase> OnGetSecretAsync(string key, CancellationToken token);
+        protected abstract Task<IEnumerable<Contracts.Data.SecretBase>> OnGetSecretsAsync(CancellationToken token);
+
         protected abstract Task<Secret> OnGetConfiguredSecretAsync(string key, CancellationToken token);
         protected abstract Task<IEnumerable<Secret>> OnGetConfiguredSecretsAsync(CancellationToken token);
 
@@ -167,15 +191,18 @@ namespace Harpocrates.SecretManagement.DataAccess
         protected abstract Task<string> OnSavePolicyAsync(SecretPolicy policy, CancellationToken token);
         protected abstract Task OnDeletePolicyAsync(string policyId, CancellationToken token);
 
-        protected abstract Task<SecretConfiguration> OnGetConfigurationAsync(string configId, CancellationToken token);
-        protected abstract Task<IEnumerable<SecretConfiguration>> OnGetConfigurationsAsync(CancellationToken token);
+        protected abstract Task<SecretConfigurationBase> OnGetConfigurationAsync(string configId, CancellationToken token);
+        protected abstract Task<IEnumerable<SecretConfigurationBase>> OnGetConfigurationsAsync(CancellationToken token);
+
+        protected abstract Task<SecretConfiguration> OnGetSecretConfigurationAsync(string configId, CancellationToken token);
+        protected abstract Task<IEnumerable<SecretConfiguration>> OnGetSecretConfigurationsAsync(CancellationToken token);
+
         protected abstract Task OnDeleteConfigurationAsync(string configId, CancellationToken token);
         protected abstract Task<string> OnSaveConfigurationAsync(SecretConfiguration config, CancellationToken token);
 
         protected abstract Task OnAddSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
         protected abstract Task OnRemoveSecretDependencyAsync(string dependsOnKey, string dependentKey, CancellationToken token);
         protected abstract Task<IEnumerable<Secret>> OnGetDependentSecretsAsync(string dependsOnKey, CancellationToken token);
-
 
     }
 }

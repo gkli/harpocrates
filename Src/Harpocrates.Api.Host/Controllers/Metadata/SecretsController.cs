@@ -1,8 +1,10 @@
 ﻿using Harpocrates.SecretManagement.Contracts.Data;
 using Harpocrates.SecretManagement.DataAccess;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Harpocrates.Api.Host.Controllers.Metadata
@@ -18,19 +20,44 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
             throw new NotImplementedException();
         }
 
-        protected override async Task<IEnumerable<Secret>> OnGetAllAsync()
+        protected override async Task<IEnumerable<Secret>> OnGetAllAsync(bool shallow)
         {
-            return await DataAccessProvider.GetConfiguredSecretsAsync(CancellationToken);
+            if (shallow)
+            {
+                var secrets = await DataAccessProvider.GetSecretsAsync(CancellationToken);
+                if (null == secrets) return null;
+                List<Secret> items = new List<Secret>();
+
+                Parallel.ForEach(secrets, (secret) =>
+                {
+                    if (null != secret) items.Add(secret.ToConfiguredSecret());
+                });
+
+
+                return items;
+            }
+            else
+                return await DataAccessProvider.GetConfiguredSecretsAsync(CancellationToken);
         }
 
-        protected override Task<Secret> OnGetAsync(string id)
+        protected override async Task<Secret> OnGetAsync(string id, bool shallow)
         {
-            throw new NotImplementedException();
+            if (shallow)
+            {
+                var secret = await DataAccessProvider.GetSecretAsync(id, CancellationToken);
+                if (null == secret) return null;
+
+                return secret.ToConfiguredSecret();
+            }
+            else
+                return await DataAccessProvider.GetConfiguredSecretAsync(id, CancellationToken);
         }
 
         protected override Task<Secret> OnSaveAsync(Secret data)
         {
             throw new NotImplementedException();
         }
+
+
     }
 }

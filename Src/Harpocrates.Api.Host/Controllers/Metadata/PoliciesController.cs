@@ -19,12 +19,12 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
             return true;
         }
 
-        protected override async Task<IEnumerable<SecretPolicy>> OnGetAllAsync()
+        protected override async Task<IEnumerable<SecretPolicy>> OnGetAllAsync(bool shallow)
         {
             return await DataAccessProvider.GetPoliciesAsync(CancellationToken);
         }
 
-        protected override async Task<SecretPolicy> OnGetAsync(string id)
+        protected override async Task<SecretPolicy> OnGetAsync(string id, bool shallow)
         {
             return await DataAccessProvider.GetPolicyAsync(id, CancellationToken);
         }
