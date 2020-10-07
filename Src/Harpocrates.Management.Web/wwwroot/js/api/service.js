@@ -3,12 +3,12 @@ window.Harpocrates.api = window.Harpocrates.api || {};
 
 window.Harpocrates.api.service = (function (enums, common, undefined) {
 
-    function _getServices() {
-
+    function _getServices(shallow) {
+        shallow = (shallow) ? true : false;
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/services',
+                url: '/api/services?shallow=' + shallow,
                 type: "GET"
             });
 
@@ -27,12 +27,12 @@ window.Harpocrates.api.service = (function (enums, common, undefined) {
         return loader;
     }
 
-    function _getService(serviceId) {
-
+    function _getService(serviceId, shallow) {
+        shallow = (shallow) ? true : false;
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/services/' + serviceId,
+                url: '/api/services/' + serviceId + '?shallow=' + shallow,
                 type: "GET"
             });
 

@@ -27,10 +27,10 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
 
                 List<SecretConfiguration> items = new List<SecretConfiguration>();
 
-                Parallel.ForEach(services, (service) =>
+                foreach (var service in services)
                 {
-                    items.Add(service.ToSecretConfig());
-                });
+                    items.Add(service.ToSecretConfiguration());
+                }
 
                 return items;
             }
@@ -44,7 +44,7 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
             {
                 var cfg = await DataAccessProvider.GetConfigurationAsync(id, CancellationToken);
                 if (null == cfg) return null;
-                return cfg.ToSecretConfig();
+                return cfg.ToSecretConfiguration();
             }
             else
                 return await DataAccessProvider.GetSecretConfigurationAsync(id, CancellationToken);

@@ -44,7 +44,7 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
             string json = await GetObjectAsync(_rootContainer, FormatFileName(StorageFolders.Secret, key), token);
             if (string.IsNullOrWhiteSpace(json)) return null;
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Secret>(json);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Contracts.Secret>(json).ToConfiguredSecret();
         }
 
         protected override async Task<IEnumerable<SecretBase>> OnGetSecretsAsync(CancellationToken token)
@@ -65,16 +65,28 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount
                 s = sb.ToConfiguredSecret();
             }
 
-            Contracts.Secret cs = sb as Contracts.Secret;
-
-            if (null != cs)
+            if (null == s.Configuration)
             {
-                s.Configuration = await GetSecretConfigurationAsync(cs.ConfigurationId.ToString(), token);
+                Contracts.Secret cs = sb as Contracts.Secret;
 
-                //if (null != token && token.IsCancellationRequested) return null; //cancel
-
-                //if (cs.PolicyId.HasValue && cs.PolicyId.Value != Guid.Empty) s.Policy = await GetPolicyAsync(cs.PolicyId.Value.ToString(), token);
+                if (null != cs)
+                {
+                    s.Configuration = await GetSecretConfigurationAsync(cs.ConfigurationId.ToString(), token);
+                }
             }
+            else if (Guid.Empty != s.Configuration.ConfigurationId &&
+                    (string.IsNullOrWhiteSpace(s.Name) || (s.SecretType == SecretType.Attached && null == s.Configuration.Policy)))
+            {
+                s.Configuration = await GetSecretConfigurationAsync(s.Configuration.ConfigurationId.ToString(), token);
+            }
+
+
+            //Contracts.Secret cs = sb as Contracts.Secret;
+
+            //if (null != cs)
+            //{
+            //    s.Configuration = await GetSecretConfigurationAsync(cs.ConfigurationId.ToString(), token);
+            //}
 
             return s;
         }

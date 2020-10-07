@@ -11,14 +11,14 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 self.name = ko.observable(name);
                 self.template = ko.observable(template);
             },
-            section: function (name, template, editorTemplate, parent, load) {
+            section: function (name, template, editorTemplate, parent, load, masterDataCollection, extend) {
                 var self = this;
 
                 self.template = ko.observable(template);
                 self.name = ko.observable(name);
                 self.editor = ko.observable(new structures.editor("editor: " + name, editorTemplate));
 
-                self.data = new data.common.entities.collection();
+                self.data = masterDataCollection; //new data.common.entities.collection();
 
                 self.paginated = new data.common.entities.paginatedCollection(10);
 
@@ -31,13 +31,18 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                     },
                     refresh: function () {
                         if (load) {
+
+                            //if (!masterDataCollection) masterDataCollection = new data.common.entities.collection();
+
                             self.data.loading(true);
                             self.data.items.removeAll();
 
-                            load(function (data) {
+                            //load shallow only...
+                            load(true, function (data) {
                                 if (!data) return;
 
                                 for (var i = 0; i < data.length; i++) {
+                                    if (extend) extend(data[i]);
                                     self.data.items.push(data[i]);
                                 }
 
@@ -73,18 +78,48 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
             config: function () {
                 var page = new structures.page("config", "template-body-config");
 
-                var section = new structures.section("secrets", "template-body-config-secrets", "template-body-config-editor-secret", page.sections, loader.secret.getAll);
-                section.actions.refresh();
-                page.sections.items.push(section);
-                page.sections.selected(section);
+                //resolve the following issue:
+                // if services are refreshed after secrets are fetched, secrets that depend on the service(s) need to be updated to use refreshed service
+                // same applies to service/policy relationship
+                // currently, you can refresh higher level object, but not lower (secret, service)
 
-                section = new structures.section("services", "template-body-config-services", "template-body-config-editor-service", page.sections, loader.service.getAll);
-                section.actions.refresh();
-                page.sections.items.push(section);
+                var secretSection = new structures.section("secrets", "template-body-config-secrets", "template-body-config-editor-secret", page.sections, loader.secret.getAll, data.masterData.metaData.secrets, function (secret) {
+                    //extend secret by looking for referenced service
+                    var serviceId = secret.service() ? secret.service().id() : null;
+                    if (serviceId) {
+                        for (var i = 0; i < data.masterData.metaData.services.items().length; i++) {
+                            if (data.masterData.metaData.services.items()[i].id() === serviceId) {
+                                secret.service(data.masterData.metaData.services.items()[i]);
+                                break;
+                            }
+                        }
+                    }
+                });
+                page.sections.items.push(secretSection);
+                page.sections.selected(secretSection);
 
-                section = new structures.section("policies", "template-body-config-policies", "template-body-config-editor-policy", page.sections, loader.policy.getAll);
-                section.actions.refresh();
-                page.sections.items.push(section);
+                var serviceSection = new structures.section("services", "template-body-config-services", "template-body-config-editor-service", page.sections, loader.service.getAll, data.masterData.metaData.services, function (service) {
+                    //extend secret by looking for referenced policy
+                    var policyId = service.policy() ? service.policy().id() : null;
+                    if (policyId) {
+                        for (var i = 0; i < data.masterData.metaData.policies.items().length; i++) {
+                            if (data.masterData.metaData.policies.items()[i].id() === policyId) {
+                                service.policy(data.masterData.metaData.policies.items()[i]);
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                page.sections.items.push(serviceSection);
+
+                var policySection = new structures.section("policies", "template-body-config-policies", "template-body-config-editor-policy", page.sections, loader.policy.getAll, data.masterData.metaData.policies, null);
+                page.sections.items.push(policySection);
+
+                //load in bottom -> up order, load policies, when happy, load services, when happy load secrets -- could use promises here...
+                policySection.actions.refresh();
+                serviceSection.actions.refresh();
+                secretSection.actions.refresh();
 
                 return page;
             },

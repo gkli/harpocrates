@@ -8,22 +8,20 @@ namespace Harpocrates.SecretManagement.DataAccess.StorageAccount.Contracts
     {
         public Guid PolicyId { get; set; }
 
-        public SecretManagement.Contracts.Data.SecretConfiguration ToSecretConfiguration()
+
+        public override SecretManagement.Contracts.Data.SecretConfiguration ToSecretConfiguration()
         {
-            return new SecretManagement.Contracts.Data.SecretConfiguration()
+            var config = base.ToSecretConfiguration();
+
+            if (Guid.Empty != PolicyId)
             {
-                ConfigurationId = ConfigurationId,
-                Name = Name,
-                Description = Description,
-                SubscriptionId = SubscriptionId,
-                SourceConnectionString = SourceConnectionString,
-                ServiceType = ServiceType,
-                //SecretUri = SecretUri,
-                Policy = new SecretManagement.Contracts.Data.SecretPolicy()
+                config.Policy = new SecretManagement.Contracts.Data.SecretPolicy()
                 {
                     PolicyId = PolicyId
-                }
-            };
+                };
+            }
+
+            return config;
         }
 
         public static Config FromSecretConfiguration(SecretManagement.Contracts.Data.SecretConfiguration config)

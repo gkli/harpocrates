@@ -3,13 +3,14 @@ window.Harpocrates.api = window.Harpocrates.api || {};
 
 window.Harpocrates.api.policy = (function (enums, common, undefined) {
 
-    function _getPolicies() {
+    function _getPolicies(shallow) {
+        shallow = (shallow) ? true : false;
 
         var loader = new common.loader(function () {
 
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/policies',
+                url: '/api/policies?shallow=' + shallow,
                 type: "GET"
             });
 
@@ -27,12 +28,12 @@ window.Harpocrates.api.policy = (function (enums, common, undefined) {
         return loader;
     }
 
-    function _getPolicy(policyId) {
-
+    function _getPolicy(policyId, shallow) {
+        shallow = (shallow) ? true : false;
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/policies/' + policyId,
+                url: '/api/policies/' + policyId + '?shallow=' + shallow,
                 type: "GET"
             });
 

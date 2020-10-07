@@ -2,7 +2,9 @@
 window.Harpocrates.viewModels = (function (enums, common, undefined) {
 
     var _utilities = {
-
+        isObject: function (o) {
+            return (typeof o === "object");
+        }
     };
 
     var _common = {
@@ -429,6 +431,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.description = ko.observable(description);
             self.type = ko.observable(type);
             self.policy = ko.observable(policy);
+
             self.subscriptionId = ko.observable(subId);
             self.sourceConnectionString = ko.observable(srcConnString);
 
@@ -635,6 +638,8 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             });
         }
     };
+
+
 
     var _metaDataConverter = {
         policyContractToVm: function (contract) {

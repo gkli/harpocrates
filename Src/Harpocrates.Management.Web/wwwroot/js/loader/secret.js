@@ -3,9 +3,9 @@ window.Harpocrates.loader = window.Harpocrates.loader || {};
 
 window.Harpocrates.loader.secret = (function (enums, common, data, api, undefined) {
 
-    function _getSecrets(oncomplete, onerror) {
+    function _getSecrets(shallow, oncomplete, onerror) {
 
-        var loader = api.secret.getAll();
+        var loader = api.secret.getAll(shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;
@@ -31,9 +31,9 @@ window.Harpocrates.loader.secret = (function (enums, common, data, api, undefine
         });
     }
 
-    function _getSecret(secretId, oncomplete, onerror) {
+    function _getSecret(secretId, shallow, oncomplete, onerror) {
 
-        var loader = api.secret.get(secretId);
+        var loader = api.secret.get(secretId, shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;

@@ -27,6 +27,24 @@ namespace Harpocrates.SecretManagement.Contracts.Data
         /// </summary>
         public string FormatExpression { get; set; }
 
+        public virtual Secret ToConfiguredSecret()
+        {
+            return new Secret()
+            {
+                CurrentKeyName = CurrentKeyName,
+                Description = Description,
+                FormatExpression = FormatExpression,
+                LastRotatedOn = LastRotatedOn,
+                Name = Name,
+                ObjectName = ObjectName,
+                ObjectType = ObjectType,
+                SecretType = SecretType,
+                SubscriptionId = SubscriptionId,
+                VaultName = VaultName,
+                Version = Version
+            };
+        }
+
         public static SecretBase FromKeyvaultUri(string uri)
         {
             Uri u = new Uri(uri);
@@ -81,23 +99,6 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         }
 
-        public Secret ToConfiguredSecret()
-        {
-            return new Secret()
-            {
-                CurrentKeyName = CurrentKeyName,
-                Description = Description,
-                FormatExpression = FormatExpression,
-                LastRotatedOn = LastRotatedOn,
-                Name = Name,
-                ObjectName = ObjectName,
-                ObjectType = ObjectType,
-                SecretType = SecretType,
-                SubscriptionId = SubscriptionId,
-                VaultName = VaultName,
-                Version = Version
-            };
-        }
         public string Key => GetKey(); //primary key for record
 
         private string GetKey()

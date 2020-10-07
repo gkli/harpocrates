@@ -3,9 +3,9 @@ window.Harpocrates.loader = window.Harpocrates.loader || {};
 
 window.Harpocrates.loader.policy = (function (enums, common, data, api, undefined) {
 
-    function _getPolicies(oncomplete, onerror) {
+    function _getPolicies(shallow, oncomplete, onerror) {
 
-        var loader = api.policy.getAll();
+        var loader = api.policy.getAll(shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;
@@ -31,9 +31,9 @@ window.Harpocrates.loader.policy = (function (enums, common, data, api, undefine
         });
     }
 
-    function _getPolicy(policyId, oncomplete, onerror) {
+    function _getPolicy(policyId, shallow, oncomplete, onerror) {
 
-        var loader = api.policy.get(policyId);
+        var loader = api.policy.get(policyId, shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;

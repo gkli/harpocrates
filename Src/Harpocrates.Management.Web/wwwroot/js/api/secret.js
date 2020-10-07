@@ -3,12 +3,13 @@ window.Harpocrates.api = window.Harpocrates.api || {};
 
 window.Harpocrates.api.secret = (function (enums, common, undefined) {
 
-    function _getSecrets() {
+    function _getSecrets(shallow) {
+        shallow = (shallow) ? true : false;
 
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secrets',
+                url: '/api/secrets?shallow=' + shallow,
                 type: "GET"
             });
 
@@ -27,12 +28,13 @@ window.Harpocrates.api.secret = (function (enums, common, undefined) {
         return loader;
     }
 
-    function _getSecret(secretId) {
+    function _getSecret(secretId, shallow) {
+        shallow = (shallow) ? true : false;
 
         var loader = new common.loader(function () {
             //perform load here
             var ajax = common.ajax.request({
-                url: '/api/secrets/' + secretId,
+                url: '/api/secrets/' + secretId + '?shallow=' + shallow,
                 type: "GET"
             });
 

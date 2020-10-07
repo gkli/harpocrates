@@ -3,9 +3,9 @@ window.Harpocrates.loader = window.Harpocrates.loader || {};
 
 window.Harpocrates.loader.service = (function (enums, common, data, api, undefined) {
 
-    function _getServices(oncomplete, onerror) {
+    function _getServices(shallow, oncomplete, onerror) {
 
-        var loader = api.service.getAll();
+        var loader = api.service.getAll(shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;
@@ -31,9 +31,9 @@ window.Harpocrates.loader.service = (function (enums, common, data, api, undefin
         });
     }
 
-    function _getService(serviceId, oncomplete, onerror) {
+    function _getService(serviceId, shallow, oncomplete, onerror) {
 
-        var loader = api.service.get(serviceId);
+        var loader = api.service.get(serviceId, shallow);
         if (!loader) {
             if (onerror) onerror({ status: 401, statusText: "User is not authenticated" });
             return;

@@ -28,11 +28,14 @@ namespace Harpocrates.Api.Host.Controllers.Metadata
                 if (null == secrets) return null;
                 List<Secret> items = new List<Secret>();
 
-                Parallel.ForEach(secrets, (secret) =>
+                foreach (var secret in secrets)
                 {
-                    if (null != secret) items.Add(secret.ToConfiguredSecret());
-                });
-
+                    if (null != secret) {
+                        if (secret is Secret) items.Add(secret as Secret);
+                        else
+                            items.Add(secret.ToConfiguredSecret());
+                    } 
+                }
 
                 return items;
             }

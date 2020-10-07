@@ -18,16 +18,16 @@ namespace Harpocrates.SecretManagement.Contracts.Data
 
         public ServiceType ServiceType { get; set; }
 
-        public SecretConfiguration ToSecretConfig()
+        public virtual SecretConfiguration ToSecretConfiguration()
         {
             return new SecretConfiguration()
             {
                 ConfigurationId = ConfigurationId,
-                Description = Description,
                 Name = Name,
-                ServiceType = ServiceType,
+                Description = Description,
+                SubscriptionId = SubscriptionId,
                 SourceConnectionString = SourceConnectionString,
-                SubscriptionId = SubscriptionId
+                ServiceType = ServiceType
             };
         }
     }
