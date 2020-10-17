@@ -13,7 +13,7 @@ namespace Harpocrates.Runtime
     {
         private readonly ILogger _logger;
         private readonly Common.Configuration.IConfigurationManager _config;
-
+       
         private QueueMonitor<Common.Contracts.RawProcessRequest> _rawMessageQueueMonitor;
         private QueueMonitor<Common.Contracts.FormattedProcessRequest> _formattedMessageQueueMonitor;
 
@@ -27,7 +27,7 @@ namespace Harpocrates.Runtime
         {
             _logger.LogInformation($"Monitoring starting: {DateTime.Now}");
 
-            _rawMessageQueueMonitor = new QueueMonitor<Common.Contracts.RawProcessRequest>(_config.RawMessagesQueueName, TimeSpan.FromSeconds(120), _config, _logger);
+            _rawMessageQueueMonitor = new QueueMonitor<Common.Contracts.RawProcessRequest>(_config.RawMessagesQueueName, TimeSpan.FromSeconds(120), _config,  _logger);
             _formattedMessageQueueMonitor = new QueueMonitor<Common.Contracts.FormattedProcessRequest>(_config.FormattedMessagesQueueName, TimeSpan.FromSeconds(120), _config, _logger);
 
             while (!token.IsCancellationRequested)

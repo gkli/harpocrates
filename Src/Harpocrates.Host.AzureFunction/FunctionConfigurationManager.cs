@@ -12,6 +12,11 @@ namespace Harpocrates.Host.AzureFunction
             throw new NotImplementedException();
         }
 
+        protected override ServicePrincipalConnectionString OnGetEnvironmentServicePrincipalConnectionString()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override string OnGetFormattedMessagesQueueName()
         {
             throw new NotImplementedException();

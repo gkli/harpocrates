@@ -18,6 +18,8 @@ namespace Harpocrates.Management.Web.Server.Configuration
 
         public string MetadataServiceBaseUri => GetMetadataServiceBaseUri();
 
+        public string TrackingServiceBaseUri => _runtimeConfig["Harpocrates:Backend:TrackingServiceBaseUri"];
+
         private string GetMetadataServiceBaseUri()
         {
             //todo: add env variable probing

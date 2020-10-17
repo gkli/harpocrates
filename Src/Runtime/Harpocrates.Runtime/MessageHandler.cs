@@ -18,16 +18,17 @@ namespace Harpocrates.Runtime
 
         private readonly ILogger _logger;
         private readonly RequestProcessorFactory _factory;
-
-        public MessageHandler(Azure.Storage.Queues.QueueClient queueClient, Azure.Storage.Queues.QueueClient deadLetterClient, Common.Configuration.IConfigurationManager config, ILogger logger)
+        private readonly Common.Tracking.IProcessingTracker _tracker;
+        public MessageHandler(Azure.Storage.Queues.QueueClient queueClient, Azure.Storage.Queues.QueueClient deadLetterClient, Common.Configuration.IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger)
         {
             _queueClient = queueClient;
             _deadLetterQueueClient = deadLetterClient;
 
             _config = config;
             _logger = logger;
+            _tracker = tracker;
 
-            _factory = new RequestProcessorFactory(_config, _logger);
+            _factory = new RequestProcessorFactory(_config, _tracker, _logger);
         }
 
 

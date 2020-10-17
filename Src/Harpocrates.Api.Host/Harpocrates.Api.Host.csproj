@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Harpocrates.Runtime.Tracking.SqlServer\Harpocrates.Runtime.Tracking.SqlServer.csproj" />
     <ProjectReference Include="..\Harpocrates.SecretManagement.DataAccess.StorageAccount\Harpocrates.SecretManagement.DataAccess.StorageAccount.csproj" />
     <ProjectReference Include="..\Runtime\Harpocrates.Runtime.Common\Harpocrates.Runtime.Common.csproj" />
     <ProjectReference Include="..\Runtime\Harpocrates.Runtime\Harpocrates.Runtime.csproj" />

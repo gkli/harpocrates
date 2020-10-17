@@ -5,13 +5,24 @@
 <script type="text/html" src="/templates/public/home/body.html" id="template-body">
 </script>
 
+<!-- dashboard:start -->
 <script type="text/html" src="/templates/public/home/dashboard/_root.html" id="template-body-dashboard">
 </script>
 
-<script type="text/html" src="/templates/public/home/config/_root.html" id="template-body-config">
+<script type="text/html" src="/templates/public/home/dashboard/secret-by-type-pie.html" id="template-body-dashboard-secrets-by-type-pie">
 </script>
 
+<script type="text/html" src="/templates/public/home/dashboard/secret-by-type-rotations.html" id="template-body-dashboard-secrets-by-type-ratations">
+</script>
+<script type="text/html" src="/templates/public/home/dashboard/rotation-history.html" id="template-body-dashboard-rotation-history">
+</script>
+<!-- dashboard:end -->
+<!-- settings:start -->
 <script type="text/html" src="/templates/public/home/settings/_root.html" id="template-body-settings">
+</script>
+<!-- settings:end -->
+<!-- config:start -->
+<script type="text/html" src="/templates/public/home/config/_root.html" id="template-body-config">
 </script>
 
 <script type="text/html" src="/templates/public/home/config/policy.html" id="template-body-config-policies">
@@ -31,7 +42,7 @@
 
 <script type="text/html" src="/templates/public/home/config/editor/secret.html" id="template-body-config-editor-secret">
 </script>
-
+<!-- config:end -->
 <placeholder class="template-body">
     <div class="wait-for-templates">
         <center>
@@ -57,6 +68,9 @@
     <script src="~/js/loader/policy.js" type="text/javascript" asp-append-version="true"></script>
     <script src="~/js/loader/service.js" type="text/javascript" asp-append-version="true"></script>
     <script src="~/js/loader/secret.js" type="text/javascript" asp-append-version="true"></script>
+
+    <script src="~/js/api/tracking.js" type="text/javascript" asp-append-version="true"></script>
+    <script src="~/js/loader/tracking.js" type="text/javascript" asp-append-version="true"></script>
 
     <script src="~/js/public/app.js" type="text/javascript" asp-append-version="true"></script>
 

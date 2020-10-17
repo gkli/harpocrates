@@ -34,6 +34,7 @@ namespace Harpocrates.Management.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient<Server.Client.IMetadataServiceClient, Server.Client.MetadataServiceClient>();
+            services.AddHttpClient<Server.Client.ITrackingServiceClient, Server.Client.TrackingServiceClient>();
 
             services.AddControllersWithViews();
 

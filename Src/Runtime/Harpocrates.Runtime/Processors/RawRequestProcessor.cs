@@ -10,7 +10,7 @@ namespace Harpocrates.Runtime.Processors
 {
     public class RawRequestProcessor : RequestProcessor<RawProcessRequest>
     {
-        public RawRequestProcessor(Common.Configuration.IConfigurationManager config, ILogger logger) : base(config, logger) { }
+        public RawRequestProcessor(Common.Configuration.IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger) : base(config, tracker, logger) { }
 
         protected override async Task OnProcessRequestAsync(RawProcessRequest request, ProcessResult result, CancellationToken token)
         {

@@ -365,6 +365,130 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         }
     };
 
+    var _tracking = {
+        transaction: function (id, action, event, status, start, end, secretUri, secretKey, parentTx) {
+            var self = this;
+
+            self.id = ko.observable(id);
+            self.parentTransaction = ko.observable(parentTx);
+            self.action = ko.observable(action);
+            self.event = ko.observable(event);
+            self.secret = {
+                uri: ko.observable(secretUri),
+                key: ko.observable(secretKey)
+            };
+            self.status = ko.observable(status);
+            self.startedOn = ko.observable(start);
+            self.endedOn = ko.observable(end);
+
+            self.attempts = new _common.collection("attempts");
+            self.attemptCount = ko.pureComputed(function () {
+                return self.attempts.items().length;
+            });
+        },
+        attempt: function (startingStatus, endingStatus, startingTime, endingTime) {
+            var self = this;
+
+            function statusPair(status, timestamp) {
+                var sself = this;
+
+                sself.status = ko.observable(status);
+                sself.time = ko.observable(timestamp);
+            }
+
+            self.starting = new statusPair(startingStatus, startingTime);
+            self.ending = new statusPair(endingStatus, endingTime);
+
+        },
+        event: function (value) {
+            var self = this;
+            self.value = ko.observable(value);
+            self.name = ko.pureComputed(function () {
+                switch (self.value()) {
+                    case enums.trackingEvent.unknown:
+                        return "Unknown";
+                    case enums.trackingEvent.created:
+                        return "Created";
+                    case enums.trackingEvent.expiring:
+                        return "Expiring";
+                    case enums.trackingEvent.expired:
+                        return "Expired";
+                }
+                return "[Unknown]";
+            });
+        },
+        action: function (value) {
+            var self = this;
+
+            self.value = ko.observable(value);
+            self.name = ko.pureComputed(function () {
+                switch (self.value()) {
+                    case enums.trackingAction.unknown:
+                        return "Unknown";
+                    case enums.trackingAction.doNothing:
+                        return "Skipped";
+                    case enums.trackingAction.scheduleDependencyUpdates:
+                        return "Schedule Dependencies";
+                    case enums.trackingAction.performDependencyUpdate:
+                        return "Update Dependency";
+                    case enums.trackingAction.cleanup:
+                        return "Cleanup";
+                }
+                return "[Unknown]";
+            });
+        },
+        status: function (mask) {
+
+            var self = this;
+
+            self.mask = ko.observable(mask);
+            self.description = ko.pureComputed(function () {
+                function addToString(str, value) {
+                    if (!str) str = "";
+                    if (str.length > 0) str += ", ";
+                    return str + value;
+                }
+                var str = "";
+                if ((self.mask() & enums.trackingSatus.pending) > 0) str = addToString(str, "Pending");
+                if ((self.mask() & enums.trackingSatus.success) > 0) str = addToString(str, "Processed");
+                if ((self.mask() & enums.trackingSatus.failed) > 0) str = addToString(str, "Failed");
+                if ((self.mask() & enums.trackingSatus.aborted) > 0) str = addToString(str, "Aborted");
+                if ((self.mask() & enums.trackingSatus.retryRequested) > 0) str = addToString(str, "Retrying");
+                if ((self.mask() & enums.trackingSatus.deadLetter) > 0) str = addToString(str, "Abandoned");
+                if ((self.mask() & enums.trackingSatus.deleteMessage) > 0) str = addToString(str, "Removed");
+                if ((self.mask() & enums.trackingSatus.skipped) > 0) str = addToString(str, "Skipped");
+
+                return str;
+            });
+
+        }
+    };
+    var _trackingConverter = {
+        txContractToVm: function (contract) {
+            if (!contract) return null;
+
+            return new _tracking.transaction(contract.transactionId
+                , new _tracking.action(contract.action)
+                , new _tracking.event(contract.event)
+                , new _tracking.status(contract.status)
+                , contract.startedOnUtc
+                , contract.endedOnUtc
+                , contract.secretUri
+                , contract.secretKey
+                , _trackingConverter.txContractToVm(contract.parentTransaction)
+            );
+        },
+        attemptContractToVm: function (contract) {
+            if (!contract) return null;
+
+            return new _tracking.attempt(contract.startTimeUtc
+                , contract.endTimeUtc
+                , new _tracking.status(contract.startingStatus)
+                , new _tracking.status(contract.endingStatus ? contract.endingStatus : 0)
+            );
+        }
+    };
+
 
     var _metaData = {
         policy: function (id, name, description, seconds) {
@@ -639,8 +763,6 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         }
     };
 
-
-
     var _metaDataConverter = {
         policyContractToVm: function (contract) {
             if (!contract) return null;
@@ -734,6 +856,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         //financial: new vmItem(_financial, _financialConverter)
         common: new vmItem(_common, null),
         metadata: new vmItem(_metaData, _metaDataConverter),
+        tracking: new vmItem(_tracking, _trackingConverter),
         masterData: _masterData
     };
 

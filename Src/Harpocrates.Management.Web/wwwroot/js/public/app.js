@@ -11,14 +11,14 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 self.name = ko.observable(name);
                 self.template = ko.observable(template);
             },
-            section: function (name, template, editorTemplate, parent, load, masterDataCollection, extend) {
+            section: function (name, template, editorTemplate, parent, load, dataCollection, extend) {
                 var self = this;
 
                 self.template = ko.observable(template);
                 self.name = ko.observable(name);
                 self.editor = ko.observable(new structures.editor("editor: " + name, editorTemplate));
 
-                self.data = masterDataCollection; //new data.common.entities.collection();
+                self.data = dataCollection; //new data.common.entities.collection();
 
                 self.paginated = new data.common.entities.paginatedCollection(10);
 
@@ -38,7 +38,7 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                             self.data.items.removeAll();
 
                             //load shallow only...
-                            load(true, function (data) {
+                            load(function (data) {
                                 if (!data) return;
 
                                 for (var i = 0; i < data.length; i++) {
@@ -73,6 +73,90 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
             dashboard: function () {
                 var page = new structures.page("dashboard", "template-body-dashboard");
 
+                var mainSection = new structures.section("main", "", "", page.sections,
+                    function (oncomplete, onerror) {
+                        var start = '01/01/1999';
+                        var end = '';
+                        loader.tracking.getAll(start, end, oncomplete, onerror)
+                    }, new data.common.entities.collection(), function (transaction) {
+                        var foo = '';
+                    });
+                page.sections.items.push(mainSection);
+                page.sections.selected(mainSection);
+
+                mainSection.actions.refresh();
+
+
+
+
+
+                // building bar chart
+
+                /*
+                 
+                  var data = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            series: [
+                [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
+                [412, 243, 280, 580, 453, 353, 300, 364, 368, 410, 636, 695]
+            ]
+        };
+
+        var options = {
+            seriesBarDistance: 10,
+            axisX: {
+                showGrid: false
+            },
+            height: "245px"
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function(value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        var chartActivity = Chartist.Bar('#chartActivity', data, options, responsiveOptions);                 
+                 */
+
+                /*
+                 
+               //  building pie chart
+
+ var dataPreferences = {
+            series: [
+                [25, 30, 20, 25]
+            ]
+        };
+
+        var optionsPreferences = {
+            donut: true,
+            donutWidth: 40,
+            startAngle: 0,
+            total: 100,
+            showLabel: false,
+            axisX: {
+                showGrid: false
+            }
+        };
+
+        Chartist.Pie('#chartPreferences', dataPreferences, optionsPreferences);
+
+        Chartist.Pie('#chartPreferences', {
+            labels: ['53%', '36%', '11%'],
+            series: [53, 36, 11]
+        });
+
+
+                 
+                 */
+
+
                 return page;
             },
             config: function () {
@@ -83,7 +167,9 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 // same applies to service/policy relationship
                 // currently, you can refresh higher level object, but not lower (secret, service)
 
-                var secretSection = new structures.section("secrets", "template-body-config-secrets", "template-body-config-editor-secret", page.sections, loader.secret.getAll, data.masterData.metaData.secrets, function (secret) {
+                var secretSection = new structures.section("secrets", "template-body-config-secrets", "template-body-config-editor-secret", page.sections, function (oncomplete, onerror) {
+                    loader.secret.getAll(true, oncomplete, onerror)
+                }, data.masterData.metaData.secrets, function (secret) {
                     //extend secret by looking for referenced service
                     var serviceId = secret.service() ? secret.service().id() : null;
                     if (serviceId) {
@@ -98,7 +184,9 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 page.sections.items.push(secretSection);
                 page.sections.selected(secretSection);
 
-                var serviceSection = new structures.section("services", "template-body-config-services", "template-body-config-editor-service", page.sections, loader.service.getAll, data.masterData.metaData.services, function (service) {
+                var serviceSection = new structures.section("services", "template-body-config-services", "template-body-config-editor-service", page.sections, function (oncomplete, onerror) {
+                    loader.service.getAll(true, oncomplete, onerror)
+                }, data.masterData.metaData.services, function (service) {
                     //extend secret by looking for referenced policy
                     var policyId = service.policy() ? service.policy().id() : null;
                     if (policyId) {
@@ -113,7 +201,10 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
 
                 page.sections.items.push(serviceSection);
 
-                var policySection = new structures.section("policies", "template-body-config-policies", "template-body-config-editor-policy", page.sections, loader.policy.getAll, data.masterData.metaData.policies, null);
+                var policySection = new structures.section("policies", "template-body-config-policies", "template-body-config-editor-policy", page.sections,
+                    function (oncomplete, onerror) {
+                        loader.policy.getAll(true, oncomplete, onerror)
+                    }, data.masterData.metaData.policies, null);
                 page.sections.items.push(policySection);
 
                 //load in bottom -> up order, load policies, when happy, load services, when happy load secrets -- could use promises here...

@@ -59,7 +59,8 @@ namespace Harpocrates.Runtime.Common.Contracts
             FormattedProcessRequest request = new FormattedProcessRequest(OriginalMessageJson, action)
             {
                 Event = et,
-                ObjectType = FormattedProcessRequest.SecretType.Unknown
+                ObjectType = FormattedProcessRequest.SecretType.Unknown,
+                ParentTransactionId = TransactionId
             };
 
             string topic = item.GetValue("topic").ToString();

@@ -9,10 +9,15 @@ namespace Harpocrates.Runtime.Common.Contracts
         public ProcessRequest(string json)
         {
             OriginalMessageJson = json;
+            TransactionId = Guid.NewGuid();
+            ParentTransactionId = Guid.Empty;
         }
 
 
         public string OriginalMessageJson { get; protected set; }
+
+        public Guid TransactionId { get; set; }
+        public Guid ParentTransactionId { get; set; }
 
 
         public string Serialize()

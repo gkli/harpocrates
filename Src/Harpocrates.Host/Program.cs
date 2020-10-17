@@ -53,6 +53,14 @@ namespace Harpocrates.Host
                             cfg.SecretManagementConnectionString, cfg);
                     })
                     //.AddApplicationInsightsTelemetryWorkerService("")
+                    .AddTransient<Runtime.Common.Tracking.IProcessingTrackerDataAccessProvider>(s =>
+                    {
+                        //todo: construct DataAccessProvider here
+                        Runtime.Common.Configuration.IConfigurationManager cfg = s.GetRequiredService<Runtime.Common.Configuration.IConfigurationManager>();
+
+                        return null;
+                    })
+                    .AddSingleton<Runtime.Common.Tracking.IProcessingTracker, Runtime.Common.Tracking.ProcessingTracker>()
                     .AddTransient<Runtime.Host>();
             });
 

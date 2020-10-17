@@ -12,17 +12,19 @@ namespace Harpocrates.Runtime
     {
         private ILogger _logger;
         private Common.Configuration.IConfigurationManager _config;
-        public RequestProcessorFactory(Common.Configuration.IConfigurationManager config, ILogger logger)
+        private Common.Tracking.IProcessingTracker _tracker;
+        public RequestProcessorFactory(Common.Configuration.IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger)
         {
             _logger = logger;
             _config = config;
+            _tracker = tracker;
         }
 
         public async Task<ProcessResult> ProcessRequestAsync(ProcessRequest request, CancellationToken token)
         {
             if (request is RawProcessRequest)
             {
-                Processors.IRequestProcessor<RawProcessRequest> processor = new Processors.RawRequestProcessor(_config, _logger);
+                Processors.IRequestProcessor<RawProcessRequest> processor = new Processors.RawRequestProcessor(_config, _tracker, _logger);
                 return await processor.ProcessRequestAsync(request as RawProcessRequest, token);
             }
             else if (request is FormattedProcessRequest)
@@ -34,16 +36,16 @@ namespace Harpocrates.Runtime
                 switch (formattedRequest.Action)
                 {
                     case FormattedProcessRequest.RequestedAction.Rotate:
-                        processor = new Processors.SecretExpiringRequestProcessor(_config, _logger);
+                        processor = new Processors.SecretExpiringRequestProcessor(_config, _tracker, _logger);
                         break;
                     case FormattedProcessRequest.RequestedAction.Cleanup:
-                        processor = new Processors.SecretExpiredRequestProcessor(_config, _logger);
+                        processor = new Processors.SecretExpiredRequestProcessor(_config, _tracker, _logger);
                         break;
                     case FormattedProcessRequest.RequestedAction.ScheduleDependencyUpdates:
-                        processor = new Processors.ScheduleDependencyUpdatesRequestProcessor(_config, _logger);
+                        processor = new Processors.ScheduleDependencyUpdatesRequestProcessor(_config, _tracker, _logger);
                         break;
                     case FormattedProcessRequest.RequestedAction.PerformDependencyUpdate:
-                        processor = new Processors.SecretVersionCreatedRequestProcessor(_config, _logger);
+                        processor = new Processors.SecretVersionCreatedRequestProcessor(_config, _tracker, _logger);
                         break;
                 }
 

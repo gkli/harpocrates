@@ -12,7 +12,7 @@ namespace Harpocrates.Runtime.Processors
 {
     internal class SecretVersionCreatedRequestProcessor : SecretEventRequestProcessor
     {
-        public SecretVersionCreatedRequestProcessor(IConfigurationManager config, ILogger logger) : base(config, logger)
+        public SecretVersionCreatedRequestProcessor(IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger) : base(config, tracker, logger)
         {
         }
 

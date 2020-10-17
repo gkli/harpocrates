@@ -11,7 +11,7 @@ namespace Harpocrates.Runtime.Processors
 {
     internal class SecretExpiredRequestProcessor : SecretEventRequestProcessor
     {
-        public SecretExpiredRequestProcessor(Common.Configuration.IConfigurationManager config, ILogger logger) : base(config, logger)
+        public SecretExpiredRequestProcessor(Common.Configuration.IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger) : base(config, tracker, logger)
         {
         }
 

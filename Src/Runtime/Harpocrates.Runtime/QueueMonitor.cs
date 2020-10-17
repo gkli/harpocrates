@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Queues.Models;
 using Harpocrates.Runtime.Common.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Harpocrates.Runtime
 
         private ILogger _logger;
         private Common.Configuration.IConfigurationManager _config;
+       // private Common.Tracking.IProcessingTracker _tracker;
         private TimeSpan _messageVisibilityTimeout;
 
         public QueueMonitor(string queueName, TimeSpan messageVisibilityTimeout, Common.Configuration.IConfigurationManager config, ILogger logger)
@@ -37,37 +39,42 @@ namespace Harpocrates.Runtime
             {
                 await EnsureQueueAsync();
 
-                RequestProcessorFactory factory = new RequestProcessorFactory(_config, _logger);
-
-                //currently have a permissions issue w/ accessing queue...
-                //under "Queue Service" in storage account UI, make sure to set "Authentication Method" to "Azure AD user Account" instead of "Access Key"
-                while (!token.IsCancellationRequested && (await PendingMessagesExistAsync(token)))
+                using (var scope = _config.ServiceProvider.CreateScope())
                 {
-                    QueueMessage[] messages = null;
+                    Common.Tracking.IProcessingTracker tracker = scope.ServiceProvider.GetRequiredService<Common.Tracking.IProcessingTracker>();
 
-                    try
-                    {
-                        messages = await _queueClient.ReceiveMessagesAsync(maxMessages: 1, visibilityTimeout: _messageVisibilityTimeout, cancellationToken: token);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Unable to receive messages. Account: {_queueClient.AccountName} Queue: {_queueClient.Name} Exception: {ex.Message}");
-                    }
+                   RequestProcessorFactory factory = new RequestProcessorFactory(_config, tracker, _logger);
 
-                    if (null != messages && messages.Length > 0)
+                    //currently have a permissions issue w/ accessing queue...
+                    //under "Queue Service" in storage account UI, make sure to set "Authentication Method" to "Azure AD user Account" instead of "Access Key"
+                    while (!token.IsCancellationRequested && (await PendingMessagesExistAsync(token)))
                     {
-                        MessageHandler<T> handler = new MessageHandler<T>(_queueClient, _deadLetterQueueClient, _config, _logger);
+                        QueueMessage[] messages = null;
 
-                        foreach (var msg in messages)
+                        try
                         {
-                            await handler.ProcessMessageAsync(msg, token);
+                            messages = await _queueClient.ReceiveMessagesAsync(maxMessages: 1, visibilityTimeout: _messageVisibilityTimeout, cancellationToken: token);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Unable to receive messages. Account: {_queueClient.AccountName} Queue: {_queueClient.Name} Exception: {ex.Message}");
+                        }
+
+                        if (null != messages && messages.Length > 0)
+                        {
+                            MessageHandler<T> handler = new MessageHandler<T>(_queueClient, _deadLetterQueueClient, _config, tracker, _logger);
+
+                            foreach (var msg in messages)
+                            {
+                                await handler.ProcessMessageAsync(msg, token);
+                            }
                         }
                     }
+
                 }
 
                 _logger.LogInformation($"No additional messages found. Queue: {_queueClient.Name}.");
             }
-
             catch (Exception ex) //todo: filter for specific exceptions
             {
                 _logger.LogError($"An error occured while monitoring queue: {_queueClient.Name}. Details: {ex.Message}");
@@ -90,7 +97,8 @@ namespace Harpocrates.Runtime
                     _logger.LogWarning("Please ensure that the queue access policy is set to 'Azure AD User Account'");
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw;
             }
         }

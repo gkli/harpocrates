@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Runtime\Harpocrates.Runtime.Common\Harpocrates.Runtime.Common.csproj" />
     <ProjectReference Include="..\Runtime\Harpocrates.SecretManagement.Contracts\Harpocrates.SecretManagement.Contracts.csproj" />
   </ItemGroup>
 

@@ -8,5 +8,6 @@ namespace Harpocrates.Management.Web.Server.Configuration
     public interface IConfigurationProvider
     {
         string MetadataServiceBaseUri { get; }
+        string TrackingServiceBaseUri { get; }
     }
 }

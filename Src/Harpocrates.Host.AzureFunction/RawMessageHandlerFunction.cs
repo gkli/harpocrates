@@ -17,7 +17,10 @@ namespace Harpocrates.Host.AzureFunction
             Azure.Storage.Queues.QueueClient c = Runtime.Helpers.QueueClientHelper.CreateQueueClient(config, config.RawMessagesQueueName);
             Azure.Storage.Queues.QueueClient d = Runtime.Helpers.QueueClientHelper.CreateQueueClient(config, config.DeadLetterMessagesQueueName);
 
-            Runtime.MessageHandler<RawProcessRequest> handler = new Runtime.MessageHandler<RawProcessRequest>(c, d, config, log);
+            Runtime.Common.Tracking.IProcessingTracker tracker = new Runtime.Common.Tracking.ProcessingTracker(null, log);
+
+
+            Runtime.MessageHandler<RawProcessRequest> handler = new Runtime.MessageHandler<RawProcessRequest>(c, d, config, tracker, log);
 
             var result = handler.ProcessMessageAsync(myQueueItem, new System.Threading.CancellationTokenSource().Token).Result;
 

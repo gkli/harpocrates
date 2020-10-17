@@ -12,7 +12,7 @@ namespace Harpocrates.Runtime.Processors
 {
     class ScheduleDependencyUpdatesRequestProcessor : RequestProcessor<FormattedProcessRequest>
     {
-        public ScheduleDependencyUpdatesRequestProcessor(IConfigurationManager config, ILogger logger) : base(config, logger)
+        public ScheduleDependencyUpdatesRequestProcessor(IConfigurationManager config, Common.Tracking.IProcessingTracker tracker, ILogger logger) : base(config, tracker, logger)
         {
         }
 
@@ -35,12 +35,14 @@ namespace Harpocrates.Runtime.Processors
                 {
                     FormattedProcessRequest fpr = new FormattedProcessRequest(request.OriginalMessageJson, FormattedProcessRequest.RequestedAction.PerformDependencyUpdate)
                     {
+                        ParentTransactionId = request.TransactionId,
                         Event = request.Event,
                         ObjectName = dependency.ObjectName,
                         SubscriptionId = dependency.SubscriptionId,
                         VaultName = dependency.VaultName,
                         ObjectUri = dependency.Uri,
                         ObjectType = FormattedProcessRequest.SecretType.Secret //todo: should this be parsed out?
+
                     };
                     workers.Add(Helpers.QueueClientHelper.CreateQueueClient(Config, Config.FormattedMessagesQueueName).SendMessageAsync(fpr.Serialize()));
                 }
