@@ -1,7 +1,7 @@
 ﻿<div class="card  card-tasks">
     <div class="card-header ">
         <h4 class="card-title">Transactions <span class="text-info actionable" data-bind="click:actions.refresh"><i class="fa fa-sync-alt"></i></span></h4>
-        <p class="card-category">Duration: [DROPDOWN - 1/7/30/180/365 days]</p>
+        <!--<p class="card-category">Duration: [DROPDOWN - 1/7/30/180/365 days]</p>-->
     </div>
 
     <!--ko if: data.loading-->
@@ -15,7 +15,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Secret uri</th>
+                        <th>Secret</th>
                         <th>Event</th>
                         <th>Action</th>
                         <th>Status</th>
@@ -24,7 +24,7 @@
                 </thead>
                 <tbody data-bind="foreach: items">
                     <tr>
-                        <td data-bind="text:secret.uri"></td>
+                        <td data-bind="text:secret.name"></td>
                         <td data-bind="text:event().name"></td>
                         <td data-bind="text:action().name"></td>
                         <td data-bind="text:status().description"></td>

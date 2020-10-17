@@ -375,7 +375,13 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.event = ko.observable(event);
             self.secret = {
                 uri: ko.observable(secretUri),
-                key: ko.observable(secretKey)
+                key: ko.observable(secretKey),
+                instance: ko.observable(null),
+                name: ko.pureComputed(function () {
+                    if (self.secret.instance()) return self.secret.instance().name();
+                    if (self.secret.uri()) return self.secret.uri();
+                    return self.secret.key();
+                })
             };
             self.status = ko.observable(status);
             self.startedOn = ko.observable(start);
@@ -431,8 +437,10 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                         return "Schedule Dependencies";
                     case enums.trackingAction.performDependencyUpdate:
                         return "Update Dependency";
-                    case enums.trackingAction.cleanup:
-                        return "Cleanup";
+                    case enums.trackingAction.cleanup: //cleanup is associated with expired, so multi status here
+                        return "Rotate";
+                    case enums.trackingAction.rotate:
+                        return "Rotate";
                 }
                 return "[Unknown]";
             });
@@ -455,7 +463,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                 if ((self.mask() & enums.trackingSatus.aborted) > 0) str = addToString(str, "Aborted");
                 if ((self.mask() & enums.trackingSatus.retryRequested) > 0) str = addToString(str, "Retrying");
                 if ((self.mask() & enums.trackingSatus.deadLetter) > 0) str = addToString(str, "Abandoned");
-                if ((self.mask() & enums.trackingSatus.deleteMessage) > 0) str = addToString(str, "Removed");
+                //if ((self.mask() & enums.trackingSatus.deleteMessage) > 0) str = addToString(str, "Removed"); //not really needed as all messages are removed
                 if ((self.mask() & enums.trackingSatus.skipped) > 0) str = addToString(str, "Skipped");
 
                 return str;
@@ -467,7 +475,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
         txContractToVm: function (contract) {
             if (!contract) return null;
 
-            return new _tracking.transaction(contract.transactionId
+            var tx = new _tracking.transaction(contract.transactionId
                 , new _tracking.action(contract.action)
                 , new _tracking.event(contract.event)
                 , new _tracking.status(contract.status)
@@ -477,6 +485,15 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                 , contract.secretKey
                 , _trackingConverter.txContractToVm(contract.parentTransaction)
             );
+
+            if (contract.attempts) {
+                for (var i = 0; i < contract.attempts.length; i++) {
+                    var attempt = _trackingConverter.attemptContractToVm(contract.attempts[i]);
+                    if (attempt) tx.attempts.items.push(attempt);
+                }
+            }
+
+            return tx;
         },
         attemptContractToVm: function (contract) {
             if (!contract) return null;

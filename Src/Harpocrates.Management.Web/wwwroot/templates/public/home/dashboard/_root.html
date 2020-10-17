@@ -1,5 +1,26 @@
 ﻿
-<div class="container-fluid" data-bind="with:sections.selected">
+<div class="container-fluid">
+
+    <ul class="navbar-nav ml-auto" data-bind="with:durations">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="with:selected">
+                <span class="no-icon" data-bind="text:name"></span>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" data-bind="foreach:items">
+                <a class="dropdown-item" href="#" data-bind="text:name, click:actions.select"></a>
+            </div>
+
+
+            <!--<a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="divider"></div>
+            <a class="dropdown-item" href="#">Separated link</a>-->
+        </li>
+    </ul>
+
+
+    <!--ko with:sections.selected-->
     <div class="row">
         <div class="col-md-4">
             <!--ko template:'template-body-dashboard-secrets-by-type-pie'--><!--/ko-->
@@ -35,4 +56,5 @@
             <!--ko template:'template-body-dashboard-rotation-history'--><!--/ko-->
         </div>
     </div>
+    <!--/ko-->
 </div>
