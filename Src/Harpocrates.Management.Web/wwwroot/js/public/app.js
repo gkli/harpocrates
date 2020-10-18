@@ -30,9 +30,8 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                         parent.selected(self);
                     },
                     refresh: function () {
+                        if (self.data.loading() === true) return;
                         if (load) {
-
-                            //if (!masterDataCollection) masterDataCollection = new data.common.entities.collection();
 
                             self.data.loading(true);
                             self.data.items.removeAll();
@@ -171,7 +170,7 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                 durations.items.push(new duration("Last 30 days", 30 * 24 * 60, durations));
                 durations.items.push(new duration("Last 6 months", 6 * 30 * 24 * 60, durations));
                 durations.items.push(new duration("Last 1 year", 12 * 30 * 24 * 60, durations));
-               // durations.items.push(new duration("Custom", -1, durations));
+                // durations.items.push(new duration("Custom", -1, durations));
 
                 durations.selected(durations.items()[3]);
 
@@ -194,7 +193,16 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                             }
                         }
 
-                        loader.tracking.getAll(start, end, oncomplete, onerror)
+                        loader.tracking.getAll(start, end, function (data) {
+                            if (oncomplete) oncomplete(data); //this should go first as it will rebuild the data collection
+                            //update chart data
+                            rebuildCharts();
+
+                        }, function (err) {
+                            if (onerror) onerror(err);
+
+                            //do something about charts?
+                        })
                     }, dataManager.tracking.transactions, function (tx) {
                         var secretId = tx ? tx.secret.key() : null;
                         if (secretId) {
@@ -215,7 +223,102 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                     mainSection.actions.refresh();
                 });
 
+                function rebuildCharts() {
+                    //build pie chart based on action or event?
+                    //expired vs created
+                    //or rotate vs schedule dep vs update dep 
 
+                    //or pie chart of processed vs other status???
+
+
+
+                    var pivot = {
+                        pending: 0,
+                        done: 0,
+                        err: 0,
+                        retrying: 0,
+                        total: 0
+                    };
+
+                    //we're double counting RAW Message & Formatted Message --- dedupe based on parent transactionid?
+
+                    for (var i = 0; i < dataManager.tracking.transactions.items().length; i++) {
+                        var tx = dataManager.tracking.transactions.items()[i];
+                        if (!tx) continue;
+                        pivot.total++;
+
+                        if (tx.status()) {
+                            if ((tx.status().mask() & enums.trackingSatus.pending) > 0) pivot.pending++;
+                            //if ((tx.status().mask() & enums.trackingSatus.failed) > 0) pivot.err++;
+                            if ((tx.status().mask() & enums.trackingSatus.success) > 0) pivot.done++;
+                            if ((tx.status().mask() & enums.trackingSatus.retryRequested) > 0) pivot.retrying++;
+                            if ((tx.status().mask() & enums.trackingSatus.deadLetter) > 0) pivot.err++; //todo: look to see what the final state is - do we leave it in Error or deadLetter
+                        }
+                    }
+
+
+                    var dataPreferences = {
+                        labels: ['No Data'],
+                        series: [100]
+                    };
+
+                    var optionsPreferences = {
+                        donut: true,
+                        donutWidth: 40,
+                        startAngle: 0,
+                        total: 100,
+                        showLabel: false,
+                        axisX: {
+                            showGrid: false
+                        }
+                    };
+
+                    //todo: rename control and pass control name as settings into the createViewModel method...
+
+                    //Chartist.Pie('#chartPreferences', dataPreferences, optionsPreferences);
+                    //a - no data, b - failed, c- processing, d, e -- processed , f
+
+                    var pie = {
+                        labels: [],
+                        data: [0, 0, 0, 0, 0, 0]
+                    };
+
+                    pie.data.push(0); // no data
+                    pie.data[1] = 100 * pivot.err / pivot.total;
+                    pie.data[2] = 100 * pivot.pending / pivot.total;
+                    pie.data[4] = 100 * pivot.done / pivot.total;
+                    pie.data[5] = 100 * pivot.retrying / pivot.total; //todo: figure out color to show in legend
+
+                    //if (pivot.done > 0) pie.data.push((100 * pivot.done / pivot.total));
+                    //if (pivot.err > 0) pie.data.push((100 * pivot.err / pivot.total));
+                    //if (pivot.pending > 0) pie.data.push((100 * pivot.pending / pivot.total));
+
+                    if (pivot.total === 0) {
+                        pie.data = [100];
+                        pie.labels = ["No Data"];
+                    }
+                    else {
+                        for (var i = 0; i < pie.data.length; i++) {
+                            if (pie.data[i] > 0) {
+                                //pie.labels.push(Math.round(pie.data[i] * 10) / 10 + '%');
+                                pie.labels.push(Math.round(pie.data[i] * pivot.total / 100));
+                            }
+                            else {
+                                pie.labels.push("");
+                            }
+
+                        }
+                    }
+
+                    Chartist.Pie('#chartPreferences', {
+                        labels: pie.labels,
+                        series: pie.data
+                    });
+
+
+
+                    //pivot data by type to get chart of Transactions by Service Type?
+                }
 
                 // building bar chart
 
