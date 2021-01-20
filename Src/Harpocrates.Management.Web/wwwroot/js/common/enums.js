@@ -34,7 +34,7 @@ window.Harpocrates.enums = (function (undefined) {
         edit: 2
     };
 
-    var _trackingSatus = {
+    var _trackingStatus = {
         pending: 1,
         success: 2,
         failed: 4,
@@ -45,7 +45,7 @@ window.Harpocrates.enums = (function (undefined) {
         skipped: 128
     };
     var _trackingAction = {
-        unknown: 0,
+        unknown: -1,
         doNothing: 1,
         rotate: 2,
         scheduleDependencyUpdates: 3,
@@ -58,6 +58,11 @@ window.Harpocrates.enums = (function (undefined) {
         expiring: 2,
         expired: 3
     };
+    var _trackingTxPurpose = {
+        unknown: -1,
+        processKVEvent: 1,
+        execProcess: 2
+    };
 
     return {
         nullableBool: _threeStateBool,
@@ -65,9 +70,12 @@ window.Harpocrates.enums = (function (undefined) {
         serviceType: _serviceType,
         secretType: _secretType,
         controlMode: _controlMode,
-        trackingSatus: _trackingSatus,
-        trackingAction: _trackingAction,
-        trackingEvent: _trackingEvent
+        tracking: {
+            status: _trackingStatus,
+            action: _trackingAction,
+            event: _trackingEvent,
+            purpose: _trackingTxPurpose
+        }
     };
 
 })();

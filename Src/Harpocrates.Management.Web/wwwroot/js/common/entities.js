@@ -366,13 +366,14 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
     };
 
     var _tracking = {
-        transaction: function (id, action, event, status, start, end, secretUri, secretKey, parentTx) {
+        transaction: function (id, action, event, status, purpose, start, end, secretUri, secretKey, parentTx) {
             var self = this;
 
             self.id = ko.observable(id);
             self.parentTransaction = ko.observable(parentTx);
             self.action = ko.observable(action);
             self.event = ko.observable(event);
+            self.purpose = ko.observable(purpose);
             self.secret = {
                 uri: ko.observable(secretUri),
                 key: ko.observable(secretKey),
@@ -391,6 +392,12 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.attemptCount = ko.pureComputed(function () {
                 return self.attempts.items().length;
             });
+
+            self.compositeAction = ko.pureComputed(function () {
+                if (self.purpose().value() == enums.tracking.purpose.processKVEvent) return "Event Received";
+                return self.action().name();
+            });
+
         },
         attempt: function (startingStatus, endingStatus, startingTime, endingTime) {
             var self = this;
@@ -411,13 +418,13 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.value = ko.observable(value);
             self.name = ko.pureComputed(function () {
                 switch (self.value()) {
-                    case enums.trackingEvent.unknown:
+                    case enums.tracking.event.unknown:
                         return "Unknown";
-                    case enums.trackingEvent.created:
+                    case enums.tracking.event.created:
                         return "Created";
-                    case enums.trackingEvent.expiring:
+                    case enums.tracking.event.expiring:
                         return "Expiring";
-                    case enums.trackingEvent.expired:
+                    case enums.tracking.event.expired:
                         return "Expired";
                 }
                 return "[Unknown]";
@@ -429,17 +436,17 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
             self.value = ko.observable(value);
             self.name = ko.pureComputed(function () {
                 switch (self.value()) {
-                    case enums.trackingAction.unknown:
+                    case enums.tracking.action.unknown:
                         return "Unknown";
-                    case enums.trackingAction.doNothing:
+                    case enums.tracking.action.doNothing:
                         return "Skipped";
-                    case enums.trackingAction.scheduleDependencyUpdates:
+                    case enums.tracking.action.scheduleDependencyUpdates:
                         return "Schedule Dependencies";
-                    case enums.trackingAction.performDependencyUpdate:
+                    case enums.tracking.action.performDependencyUpdate:
                         return "Update Dependency";
-                    case enums.trackingAction.cleanup: //cleanup is associated with expired, so multi status here
+                    case enums.tracking.action.cleanup: //cleanup is associated with expired, so multi status here
                         return "Rotate";
-                    case enums.trackingAction.rotate:
+                    case enums.tracking.action.rotate:
                         return "Rotate";
                 }
                 return "[Unknown]";
@@ -457,18 +464,33 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                     return str + value;
                 }
                 var str = "";
-                if ((self.mask() & enums.trackingSatus.pending) > 0) str = addToString(str, "Pending");
-                if ((self.mask() & enums.trackingSatus.success) > 0) str = addToString(str, "Processed");
-                if ((self.mask() & enums.trackingSatus.failed) > 0) str = addToString(str, "Failed");
-                if ((self.mask() & enums.trackingSatus.aborted) > 0) str = addToString(str, "Aborted");
-                if ((self.mask() & enums.trackingSatus.retryRequested) > 0) str = addToString(str, "Retrying");
-                if ((self.mask() & enums.trackingSatus.deadLetter) > 0) str = addToString(str, "Abandoned");
-                //if ((self.mask() & enums.trackingSatus.deleteMessage) > 0) str = addToString(str, "Removed"); //not really needed as all messages are removed
-                if ((self.mask() & enums.trackingSatus.skipped) > 0) str = addToString(str, "Skipped");
+                if ((self.mask() & enums.tracking.status.pending) > 0) str = addToString(str, "Pending");
+                if ((self.mask() & enums.tracking.status.success) > 0) str = addToString(str, "Processed");
+                if ((self.mask() & enums.tracking.status.failed) > 0) str = addToString(str, "Failed");
+                if ((self.mask() & enums.tracking.status.aborted) > 0) str = addToString(str, "Aborted");
+                if ((self.mask() & enums.tracking.status.retryRequested) > 0) str = addToString(str, "Retrying");
+                if ((self.mask() & enums.tracking.status.deadLetter) > 0) str = addToString(str, "Abandoned");
+                //if ((self.mask() & enums.tracking.Satus.deleteMessage) > 0) str = addToString(str, "Removed"); //not really needed as all messages are removed
+                if ((self.mask() & enums.tracking.status.skipped) > 0) str = addToString(str, "Skipped");
 
                 return str;
             });
 
+        },
+        purpose: function (value) {
+            var self = this;
+            self.value = ko.observable(value);
+            self.name = ko.pureComputed(function () {
+                switch (self.value()) {
+                    case enums.tracking.purpose.unknown:
+                        return "Unknown";
+                    case enums.tracking.purpose.processKVEvent:
+                        return "KV Event";
+                    case enums.tracking.purpose.execProcess:
+                        return "Exec Process";
+                }
+                return "[Unknown]";
+            });
         }
     };
     var _trackingConverter = {
@@ -479,6 +501,7 @@ window.Harpocrates.viewModels = (function (enums, common, undefined) {
                 , new _tracking.action(contract.action)
                 , new _tracking.event(contract.event)
                 , new _tracking.status(contract.status)
+                , new _tracking.purpose(contract.purpose)
                 , contract.startedOnUtc
                 , contract.endedOnUtc
                 , contract.secretUri

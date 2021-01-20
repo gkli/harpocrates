@@ -8,8 +8,8 @@ namespace Harpocrates.Runtime.Common.Contracts
     {
         public enum RequestedAction
         {
-            Unknown = 0,
-            DoNothing,
+            Unknown = -1,
+            DoNothing = 1,
             Rotate,
             ScheduleDependencyUpdates,
             PerformDependencyUpdate,

@@ -245,14 +245,17 @@ window.Harpocrates.app = (function ($, data, enums, common, security, loader, un
                     for (var i = 0; i < dataManager.tracking.transactions.items().length; i++) {
                         var tx = dataManager.tracking.transactions.items()[i];
                         if (!tx) continue;
+
+                        //if (tx.purpose().value() == enums.tracking.purpose.processKVEvent) continue; //we don't want to count scheduling events?
+
                         pivot.total++;
 
                         if (tx.status()) {
-                            if ((tx.status().mask() & enums.trackingSatus.pending) > 0) pivot.pending++;
-                            //if ((tx.status().mask() & enums.trackingSatus.failed) > 0) pivot.err++;
-                            if ((tx.status().mask() & enums.trackingSatus.success) > 0) pivot.done++;
-                            if ((tx.status().mask() & enums.trackingSatus.retryRequested) > 0) pivot.retrying++;
-                            if ((tx.status().mask() & enums.trackingSatus.deadLetter) > 0) pivot.err++; //todo: look to see what the final state is - do we leave it in Error or deadLetter
+                            //if ((tx.status().mask() & enums.tracking.satus.failed) > 0) pivot.err++;
+                            if ((tx.status().mask() & enums.tracking.status.success) > 0) pivot.done++;
+                            if ((tx.status().mask() & enums.tracking.status.retryRequested) > 0) pivot.retrying++;
+                            if ((tx.status().mask() & enums.tracking.status.pending) > 0) pivot.pending++;
+                            if ((tx.status().mask() & enums.tracking.status.deadLetter) > 0) pivot.err++; //todo: look to see what the final state is - do we leave it in Error or deadLetter
                         }
                     }
 

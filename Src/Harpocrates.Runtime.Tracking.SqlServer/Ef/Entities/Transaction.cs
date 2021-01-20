@@ -19,9 +19,11 @@ namespace Harpocrates.Runtime.Tracking.SqlServer.Ef.Entities
         public Guid TransactionId { get; set; }
         public Transaction ParentTransaction { get; set; }
 
-        // public Common.Contracts.ProcessResult.ProcessingStatus Status { get; set; }
         public Common.Contracts.FormattedProcessRequest.RequestedAction Action { get; set; }
+        public Common.Contracts.Tracking.TransactionPurpose Purpose { get; set; }
+
         public Common.Contracts.FormattedProcessRequest.SecretEvent Event { get; set; }
+
 
         public string SecretUri { get; set; }
         public string SecretKey { get; set; }
@@ -34,6 +36,7 @@ namespace Harpocrates.Runtime.Tracking.SqlServer.Ef.Entities
             {
                 TransactionId = TransactionId,
                 Action = Action,
+                Purpose = Purpose,
                 Event = Event,
                 ParentTransaction = ParentTransaction?.ToCommonTransaction(),
                 SecretKey = SecretKey,

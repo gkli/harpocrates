@@ -1,4 +1,5 @@
 ﻿using Harpocrates.Runtime.Common.Contracts;
+using Harpocrates.Runtime.Common.Contracts.Tracking;
 using Harpocrates.Runtime.Tracking.SqlServer.Ef.Entities;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,7 @@ namespace Harpocrates.Runtime.Tracking.SqlServer
                 string key = string.Empty, uri = string.Empty;
                 FormattedProcessRequest.SecretEvent evnt = FormattedProcessRequest.SecretEvent.Unknown;
                 FormattedProcessRequest.RequestedAction action = FormattedProcessRequest.RequestedAction.Unknown;
+                TransactionPurpose purpose = TransactionPurpose.Unknown;
 
                 FormattedProcessRequest fpr = context.Request as FormattedProcessRequest;
                 if (null == fpr)
@@ -65,12 +67,18 @@ namespace Harpocrates.Runtime.Tracking.SqlServer
                     fpr = (context.Request as RawProcessRequest)?.FormatRequest();
                 }
 
-
                 if (null != fpr)
                 {
                     uri = fpr.ObjectUri;
                     evnt = fpr.Event;
                     action = fpr.Action;
+                    purpose = TransactionPurpose.ExecuteRotationProcess;
+                }
+
+                if (context.Request is RawProcessRequest)
+                {
+                    action = FormattedProcessRequest.RequestedAction.Unknown;
+                    purpose = TransactionPurpose.ProcessKVEvent;
                 }
 
                 if (!string.IsNullOrWhiteSpace(uri))
@@ -85,7 +93,8 @@ namespace Harpocrates.Runtime.Tracking.SqlServer
                     SecretKey = key,
                     SecretUri = uri,
                     Action = action,
-                    Event = evnt
+                    Event = evnt,
+                    Purpose = purpose
                 };
 
                 if (context.Request.ParentTransactionId != Guid.Empty)

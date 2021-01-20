@@ -26,7 +26,7 @@ namespace Harpocrates.Api.Host.BgWorker
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Consume Scoped Service Hosted Service is working.");
-
+            
             using (var scope = Services.CreateScope())
             {
                 var host =
